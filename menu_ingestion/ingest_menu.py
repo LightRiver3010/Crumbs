@@ -317,7 +317,8 @@ def load_sources(path):
         if provider == "ubereats":
             mode = query.get("diningMode", [None])[0]
         else:
-            mode = {"true": "PICKUP", "false": "DELIVERY"}.get(query.get("pickup", [""])[0])
+            # DoorDash store URLs omit `pickup` for the default delivery mode.
+            mode = {"true": "PICKUP", "false": "DELIVERY"}.get(query.get("pickup", ["false"])[0])
         if mode != source["fulfillment_mode"]:
             raise ValueError(f"{source_id}: URL diningMode must match fulfillment_mode.")
         for field in ("bucket", "project", "region", "location"):

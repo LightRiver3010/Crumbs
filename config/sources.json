@@ -17,7 +17,30 @@
       "url": "https://www.ubereats.com/store/primo-too-amherst/i-Bsq96IVpyZt5rXnRz5Ng?diningMode=DELIVERY&pl=JTdCJTIyYWRkcmVzcyUyMiUzQSUyMkhvdGVsJTIwVU1hc3MlMjIlMkMlMjJyZWZlcmVuY2UlMjIlM0ElMjIyODJlYmE0Yi05YjAxLTMzNzgtYTQ1My0wMTU3NjAzYzcyN2QlMjIlMkMlMjJyZWZlcmVuY2VUeXBlJTIyJTNBJTIydWJlcl9wbGFjZXMlMjIlMkMlMjJsYXRpdHVkZSUyMiUzQTQyLjM5MTgyMDglMkMlMjJsb25naXR1ZGUlMjIlM0EtNzIuNTI3MjE1NSU3RA%3D%3D&ps=1&surfaceName=",
       "store_id": "8be06cab-de88-569c-99b7-9ad79d1cf936",
       "html_only_tested": true,
-      "html_only_matches_js": true
+      "html_only_matches_js": true,
+      "restaurant_id": "primo-too-amherst"
+    },
+    {
+      "id": "primo-too-doordash",
+      "provider": "doordash",
+      "enabled": true,
+      "expected_heading": "Primos Too",
+      "url": "https://www.doordash.com/store/primos-too-amherst-26064129/27543747/?event_type=autocomplete&pickup=false",
+      "store_id": "26064129",
+      "html_only_tested": true,
+      "html_only_matches_js": true,
+      "restaurant_id": "primo-too-amherst"
+    },
+    {
+      "id": "primo-too-direct",
+      "provider": "third-party",
+      "enabled": false,
+      "expected_heading": "Primo too Amherst",
+      "url": "https://primotoopizza.com/",
+      "store_id": "",
+      "html_only_tested": false,
+      "html_only_matches_js": false,
+      "restaurant_id": "primo-too-amherst"
     },
     {
       "id": "taco-bell",
@@ -27,7 +50,19 @@
       "url": "https://www.doordash.com/store/taco-bell-northampton-1199296/1751802/?cursor=eyJzdG9yZV9wcmltYXJ5X3ZlcnRpY2FsX2lkcyI6WzEsMTAwMzMzLDExMDAzNywxMTAwNDUsMTEwMDUyLDExMDA1NSwxMTAwNjIsMTEwMDgyLDExMDA4MywxNzYsMTkyLDExMDA1OCwxOTMsMTk1XSwiY2Fyb3VzZWxfaWQiOiIwOGVjOTQ5YS1kMzZjLTQ1NmEtYmVmMi03MDdiYWUyZjA4NTkiLCJjYXJvdXNlbF90aXRsZSI6Ik5hdGlvbmFsIGZhdm9yaXRlcyJ9&pickup=false",
       "store_id": "1199296",
       "html_only_tested": true,
-      "html_only_matches_js": false
+      "html_only_matches_js": false,
+      "restaurant_id": "taco-bell-northampton"
+    },
+    {
+      "id": "taco-bell-ubereats",
+      "provider": "ubereats",
+      "enabled": true,
+      "expected_heading": "Taco Bell (203 King Street)",
+      "url": "https://www.ubereats.com/store/taco-bell-203-king-street/gHd9qIqXTZuiGBU3Clmokw?diningMode=DELIVERY",
+      "store_id": "gHd9qIqXTZuiGBU3Clmokw",
+      "html_only_tested": false,
+      "html_only_matches_js": false,
+      "restaurant_id": "taco-bell-northampton"
     },
     {
       "id": "popeyes",
@@ -37,7 +72,250 @@
       "url": "https://www.ubereats.com/store/popeyes-louisiana-chicken-3-south-maple-street-hadley/WnBtLsEeXaS3ih7bJdbVgA?diningMode=DELIVERY&ps=1&sc=SEARCH_SUGGESTION",
       "store_id": "WnBtLsEeXaS3ih7bJdbVgA",
       "html_only_tested": false,
-      "html_only_matches_js": false
+      "html_only_matches_js": false,
+      "restaurant_id": "popeyes-hadley"
+    },
+    {
+      "id": "popeyes-doordash",
+      "provider": "doordash",
+      "enabled": true,
+      "expected_heading": "Popeyes Louisiana Kitchen",
+      "url": "https://www.doordash.com/store/popeyes-louisiana-kitchen-hadley-23129572/",
+      "store_id": "23129572",
+      "html_only_tested": false,
+      "html_only_matches_js": false,
+      "restaurant_id": "popeyes-hadley"
+    },
+    {
+      "id": "bueno_y_sano_doordash",
+      "provider": "doordash",
+      "enabled": true,
+      "expected_heading": "Bueno Y Sano",
+      "url": "https://www.doordash.com/store/bueno-y-sano-amherst-405107/",
+      "store_id": "405107",
+      "html_only_tested": false,
+      "html_only_matches_js": false,
+      "restaurant_id": "bueno-y-sano-amherst"
+    },
+    {
+      "id": "chipotle_hadley_doordash",
+      "provider": "doordash",
+      "enabled": true,
+      "expected_heading": "Chipotle Mexican Grill",
+      "url": "https://www.doordash.com/store/chipotle-mexican-grill-hadley-ma-24424859/",
+      "store_id": "24424859",
+      "html_only_tested": false,
+      "html_only_matches_js": false,
+      "restaurant_id": "chipotle-hadley"
+    },
+    {
+      "id": "chipotle_hadley_ubereats",
+      "provider": "ubereats",
+      "enabled": true,
+      "expected_heading": "Chipotle Mexican Grill (334 Russell St)",
+      "url": "https://www.ubereats.com/store/chipotle-mexican-grill-334-russell-st/FPaIFRS4RQWJpDBQBugA8A?diningMode=DELIVERY",
+      "store_id": "FPaIFRS4RQWJpDBQBugA8A",
+      "html_only_tested": false,
+      "html_only_matches_js": false,
+      "restaurant_id": "chipotle-hadley"
+    },
+    {
+      "id": "mcdonalds_hadley_doordash",
+      "provider": "doordash",
+      "enabled": true,
+      "expected_heading": "McDonald's",
+      "url": "https://www.doordash.com/store/mcdonalds-hadley-687577/",
+      "store_id": "687577",
+      "html_only_tested": false,
+      "html_only_matches_js": false,
+      "restaurant_id": "mcdonalds-hadley"
+    },
+    {
+      "id": "mcdonalds_hadley_ubereats",
+      "provider": "ubereats",
+      "enabled": true,
+      "expected_heading": "McDonald's (374 RUSSELL ST)",
+      "url": "https://www.ubereats.com/store/mcdonalds-374-russell-st/oWluRKXaS0eP4lvKs6RDgQ?diningMode=DELIVERY",
+      "store_id": "oWluRKXaS0eP4lvKs6RDgQ",
+      "html_only_tested": false,
+      "html_only_matches_js": false,
+      "restaurant_id": "mcdonalds-hadley"
+    },
+    {
+      "id": "formosa_chinese_doordash",
+      "provider": "doordash",
+      "enabled": true,
+      "expected_heading": "Formosa Chinese Restaurant",
+      "url": "https://www.doordash.com/store/formosa-chinese-restaurant-amherst-23989347/",
+      "store_id": "23989347",
+      "html_only_tested": false,
+      "html_only_matches_js": false,
+      "restaurant_id": "formosa-chinese-amherst"
+    },
+    {
+      "id": "formosa_chinese_ubereats",
+      "provider": "ubereats",
+      "enabled": true,
+      "expected_heading": "Formosa Chinese Restaurant (Amherst)",
+      "url": "https://www.ubereats.com/store/formosa-chinese-restaurant-amhersts/bxYSQ9FzVlKjeAxbu_f6ow?diningMode=DELIVERY",
+      "store_id": "bxYSQ9FzVlKjeAxbu_f6ow",
+      "html_only_tested": false,
+      "html_only_matches_js": false,
+      "restaurant_id": "formosa-chinese-amherst"
+    },
+    {
+      "id": "the_hangar_pub_doordash",
+      "provider": "doordash",
+      "enabled": true,
+      "expected_heading": "The Hangar Pub and Grill",
+      "url": "https://www.doordash.com/store/the-hangar-pub-and-grill-amherst-1049281/",
+      "store_id": "1049281",
+      "html_only_tested": false,
+      "html_only_matches_js": false,
+      "restaurant_id": "the-hangar-pub-amherst"
+    },
+    {
+      "id": "the_hangar_pub_ubereats",
+      "provider": "ubereats",
+      "enabled": true,
+      "expected_heading": "The Hangar Pub and Grill",
+      "url": "https://www.ubereats.com/store/the-hangar-pub-and-grill-amherst/gM-XyUfWTVKq5t3y0z1X3A?diningMode=DELIVERY",
+      "store_id": "gM-XyUfWTVKq5t3y0z1X3A",
+      "html_only_tested": false,
+      "html_only_matches_js": false,
+      "restaurant_id": "the-hangar-pub-amherst"
+    },
+    {
+      "id": "pita_pockets_doordash",
+      "provider": "doordash",
+      "enabled": true,
+      "expected_heading": "Pita Pockets",
+      "url": "https://www.doordash.com/store/pita-pockets-amherst-23095452/",
+      "store_id": "23095452",
+      "html_only_tested": false,
+      "html_only_matches_js": false,
+      "restaurant_id": "pita-pockets-amherst"
+    },
+    {
+      "id": "wendys_hadley_doordash",
+      "provider": "doordash",
+      "enabled": true,
+      "expected_heading": "Wendy's",
+      "url": "https://www.doordash.com/store/wendys-hadley-1273992/",
+      "store_id": "1273992",
+      "html_only_tested": false,
+      "html_only_matches_js": false,
+      "restaurant_id": "wendys-hadley"
+    },
+    {
+      "id": "wendys_hadley_ubereats",
+      "provider": "ubereats",
+      "enabled": true,
+      "expected_heading": "Wendy's (376 Russell Street)",
+      "url": "https://www.ubereats.com/store/wendys-376-russell-street/jNak1pxwTWaefdND_wc-Yg?diningMode=DELIVERY",
+      "store_id": "jNak1pxwTWaefdND_wc-Yg",
+      "html_only_tested": false,
+      "html_only_matches_js": false,
+      "restaurant_id": "wendys-hadley"
+    },
+    {
+      "id": "insomnia_cookies_doordash",
+      "provider": "doordash",
+      "enabled": true,
+      "expected_heading": "Insomnia Cookies",
+      "url": "https://www.doordash.com/store/insomnia-cookies-catering-amherst-24888656/",
+      "store_id": "24888656",
+      "html_only_tested": false,
+      "html_only_matches_js": false,
+      "restaurant_id": "insomnia-cookies-amherst"
+    },
+    {
+      "id": "insomnia_cookies_ubereats",
+      "provider": "ubereats",
+      "enabled": true,
+      "expected_heading": "Insomnia Cookies (30 Main Street)",
+      "url": "https://www.ubereats.com/store/insomnia-cookies-30-main-street/ei03wCXhU8GQ09tvlZ_AjQ?diningMode=DELIVERY",
+      "store_id": "ei03wCXhU8GQ09tvlZ_AjQ",
+      "html_only_tested": false,
+      "html_only_matches_js": false,
+      "restaurant_id": "insomnia-cookies-amherst"
+    },
+    {
+      "id": "antonios_pizza_doordash",
+      "provider": "doordash",
+      "enabled": true,
+      "expected_heading": "Antonio's Pizza",
+      "url": "https://www.doordash.com/store/antonios-pizza-amherst-886508/",
+      "store_id": "886508",
+      "html_only_tested": false,
+      "html_only_matches_js": false,
+      "restaurant_id": "antonios-pizza-amherst"
+    },
+    {
+      "id": "antonios_pizza_ubereats",
+      "provider": "ubereats",
+      "enabled": true,
+      "expected_heading": "Antonio's Pizza By The Slice (Amherst)",
+      "url": "https://www.ubereats.com/store/antonios-pizza-by-the-slice-amhersts/IrfhFcpWVamq9lnwb3TlmQ?diningMode=DELIVERY",
+      "store_id": "IrfhFcpWVamq9lnwb3TlmQ",
+      "html_only_tested": false,
+      "html_only_matches_js": false,
+      "restaurant_id": "antonios-pizza-amherst"
+    },
+    {
+      "id": "oriental_flavor_ubereats",
+      "provider": "ubereats",
+      "enabled": true,
+      "expected_heading": "Oriental Flavor",
+      "url": "https://www.ubereats.com/store/oriental-flavor/ZsMCKAOpTTWeFcku-PfMzQ?diningMode=DELIVERY",
+      "store_id": "ZsMCKAOpTTWeFcku-PfMzQ",
+      "html_only_tested": false,
+      "html_only_matches_js": false,
+      "restaurant_id": "oriental-flavor-amherst"
+    },
+    {
+      "id": "dp_dough_ubereats",
+      "provider": "ubereats",
+      "enabled": true,
+      "expected_heading": "D.P. Dough (Amherst)",
+      "url": "https://www.ubereats.com/store/dp-dough-18-n-pleasant-st/pIUIaVEvWeiLyGC17Wxxcw?diningMode=DELIVERY",
+      "store_id": "pIUIaVEvWeiLyGC17Wxxcw",
+      "html_only_tested": false,
+      "html_only_matches_js": false,
+      "restaurant_id": "dp-dough-amherst"
+    },
+    {
+      "id": "dp_dough_doordash",
+      "provider": "doordash",
+      "enabled": true,
+      "expected_heading": "D.P. Dough",
+      "url": "https://www.doordash.com/store/dp-dough-amherst-25986755/",
+      "store_id": "25986755",
+      "html_only_tested": false,
+      "html_only_matches_js": false,
+      "restaurant_id": "dp-dough-amherst"
+    },
+    {
+      "id": "subway_amherst_ubereats",
+      "provider": "ubereats",
+      "enabled": true,
+      "expected_heading": "Subway (4 Main St)",
+      "url": "https://www.ubereats.com/store/subway-4-main-st/7AlbG3MnRzC6Jjh1STIbeA?diningMode=DELIVERY",
+      "store_id": "7AlbG3MnRzC6Jjh1STIbeA",
+      "html_only_tested": false,
+      "html_only_matches_js": false,
+      "restaurant_id": "subway-4-main-amherst"
+    },
+    {
+      "id": "subway_amherst_doordash",
+      "provider": "doordash",
+      "enabled": true,
+      "expected_heading": "Subway",
+      "url": "https://www.doordash.com/store/subway-amherst-627880/",
+      "store_id": "627880",
+      "html_only_tested": false,
+      "html_only_matches_js": false,
+      "restaurant_id": "subway-4-main-amherst"
     }
   ]
 }

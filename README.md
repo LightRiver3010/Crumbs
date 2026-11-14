@@ -29,6 +29,23 @@ Offline inspection:
 
 - python -m menu_ingestion.tools.inspect_primo_embedded artifacts/COMPARISON_FOLDER
 
+## Scheduled ingestion
+
+The Airflow DAG in `airflow/dags/menu_ingestion.py` creates one ingestion task
+per enabled source, then runs the dbt build and tests after all source tasks
+finish. It defaults to hourly execution for the demo. Set
+`MENU_INGESTION_SCHEDULE=0 0,12 * * *` for twice-daily post-demo collection.
+
+Install the orchestration dependencies separately from the application:
+
+    python -m pip install -r requirements-airflow.txt
+
+The worker must expose the repository through `DELIVERY_PROJECT_ROOT`, provide
+`ZENROWS_API_KEY` through its secret manager, and have AWS and Google
+credentials. See [airflow/README.md](airflow/README.md) for the task contract
+and retry/idempotency behavior. The dbt project is under `dbt/`; its profile
+uses environment variables and contains no credentials.
+
 ## Screenshot extraction MVP
 
 See [receipt_extraction/README.md](receipt_extraction/README.md) for setup and the Streamlit upload/review flow. Comparison dataset planning and SQL are under benchmark_data/ and sql/build_benchmarks.sql.

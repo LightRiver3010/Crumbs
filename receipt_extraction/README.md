@@ -14,3 +14,14 @@ Images are normalized to PNG without EXIF and stored at private/receipts/<sessio
 Gemini is invoked only on an explicit Extract click, never a normal Streamlit rerun. The active successful draft is reused. Re-uploading after changing files/restarting may call Gemini again. Save retries replace that upload's rows transactionally. Visible provider/order references deduplicate across screenshots; without those, users must remove overlap manually. Concurrent writes are not supported in this local MVP.
 
 Only confirmed payloads are persisted; failed/unconfirmed model attempts are not audited yet. No login: session identity is temporary and not a production authorization mechanism. Do not expose this app publicly before adding authentication and authorization. Benchmark import/aggregation is a documented scaffold, not fabricated comparisons.
+
+## Personal insights and savings
+The receipt tab accepts multiple images. Each successful extraction is cached by image hash for the browser session; adjusting savings controls does not call Gemini. Review/save remains per screenshot. Provider/order references deduplicate in the warehouse; users must remove unreferenced overlapping orders in review or deselect them in insights. Deselecting affects current analysis only, not stored data.
+
+insights.py computes meal appearances per order, restaurant frequency, weekdays, spending projections and dining-hall scenarios. frontend/receipt_savings.py renders these and the two routes. Unknown dates are excluded from weekday facts; unknown totals/currencies block projections rather than silently extrapolating incomplete spending.
+
+Habit choices mean normal order frequency relative to the screenshot sample. Users confirm an inclusive reporting period (including zero-order days); usually more/less additionally requires a numeric weekly frequency in the corresponding direction. Monthly projections use 365/12 days and assume the sample's average order value. Actual receipt dates/facts are never stretched. No BLS/population comparison is active.
+
+Dining swaps require confirmed single-person delivery orders with known USD totals strictly above $10. The slider is 0 to the selected eligible order count, replacing most expensive first. Meal plan assumes available swipes at $0 marginal cash cost; otherwise $19 per meal is a user-requested assumption. Negative savings display additional cost.
+
+Keep the same uses manually confirmed matches to the nine supported Primo Too listings and quantities/platform. It compares current source menu prices to the lower platform price, assuming unchanged historic menu prices. Fees, discounts, tips and taxes are excluded. Coverage is explicit and unmatched items are not treated as zero savings. These scenarios are alternatives and must not be summed.

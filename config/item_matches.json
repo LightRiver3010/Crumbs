@@ -1,0 +1,140 @@
+{
+  "restaurant_id": "primo-too-amherst",
+  "items": [
+    {
+      "name": "Cheese Pizza (Medium 12\")",
+      "category": "Pizzas",
+      "match_basis": "Same listed item and explicit size or piece count; customizations unverified",
+      "sources": {
+        "ubereats": {
+          "item_id": "a5000868-45d1-4462-ac03-5e105792215a",
+          "expected_name": "Cheese Pizza (Medium 12\")"
+        },
+        "doordash": {
+          "item_id": "10189301997",
+          "expected_name": "Cheese Pizza (Medium 12\")"
+        }
+      }
+    },
+    {
+      "name": "Cheese Pizza (Large 16\")",
+      "category": "Pizzas",
+      "match_basis": "Same listed item and explicit size or piece count; customizations unverified",
+      "sources": {
+        "ubereats": {
+          "item_id": "4d679eaa-d021-4d18-93cb-d2db00e39bf3",
+          "expected_name": "Cheese Pizza (Large 16\")"
+        },
+        "doordash": {
+          "item_id": "10189301996",
+          "expected_name": "Cheese Pizza (Large 16\")"
+        }
+      }
+    },
+    {
+      "name": "Cheese Pizza (Extra Large 18\")",
+      "category": "Pizzas",
+      "match_basis": "Same listed item and explicit size or piece count; customizations unverified",
+      "sources": {
+        "ubereats": {
+          "item_id": "6d301540-cebf-4374-aba1-3895141f8d59",
+          "expected_name": "Cheese Pizza (Extra Large 18\")"
+        },
+        "doordash": {
+          "item_id": "10189301995",
+          "expected_name": "Cheese Pizza (Extra Large 18\")"
+        }
+      }
+    },
+    {
+      "name": "Garlic Knots (8 pcs)",
+      "category": "Appetizers",
+      "match_basis": "Same listed item and explicit size or piece count; customizations unverified",
+      "sources": {
+        "ubereats": {
+          "item_id": "bf99a7ef-0a4e-4e00-b0fe-1ac254f5e407",
+          "expected_name": "Garlic Knots (8 pcs)"
+        },
+        "doordash": {
+          "item_id": "10189302065",
+          "expected_name": "Garlic Knots (8)"
+        }
+      }
+    },
+    {
+      "name": "Mozzarella Sticks (8 pcs)",
+      "category": "Appetizers",
+      "match_basis": "Same listed item and explicit size or piece count; customizations unverified",
+      "sources": {
+        "ubereats": {
+          "item_id": "cdb44dae-4b54-44dd-b0ab-a633a2696eaa",
+          "expected_name": "Mozzarella Sticks (8 pcs)"
+        },
+        "doordash": {
+          "item_id": "10189302066",
+          "expected_name": "Mozzarella Sticks (8)"
+        }
+      }
+    },
+    {
+      "name": "Fried Chicken Fingers (5 pcs)",
+      "category": "Appetizers",
+      "match_basis": "Same listed item and explicit size or piece count; customizations unverified",
+      "sources": {
+        "ubereats": {
+          "item_id": "16ee2473-3d7c-4a54-b827-bfdfa043b340",
+          "expected_name": "Fried Chicken Fingers (5 pcs)"
+        },
+        "doordash": {
+          "item_id": "10189302062",
+          "expected_name": "Fried Chicken Fingers (5)"
+        }
+      }
+    },
+    {
+      "name": "Mild Wings (8 pcs)",
+      "category": "Appetizers",
+      "match_basis": "Same listed item and explicit size or piece count; customizations unverified",
+      "sources": {
+        "ubereats": {
+          "item_id": "f6433943-060e-4028-b57e-f2373979c110",
+          "expected_name": "Mild Wings (8 pcs)"
+        },
+        "doordash": {
+          "item_id": "10189302067",
+          "expected_name": "Mild Wings (8)"
+        }
+      }
+    },
+    {
+      "name": "Hot Wings (8 pcs)",
+      "category": "Appetizers",
+      "match_basis": "Same listed item and explicit size or piece count; customizations unverified",
+      "sources": {
+        "ubereats": {
+          "item_id": "27d19be2-6a99-46d5-85f8-347964d356f4",
+          "expected_name": "Hot Wings (8 pcs)"
+        },
+        "doordash": {
+          "item_id": "10189302063",
+          "expected_name": "Hot Wings (8)"
+        }
+      }
+    },
+    {
+      "name": "Jalapeno Poppers (8 pcs)",
+      "category": "Appetizers",
+      "match_basis": "Same listed item and explicit size or piece count; customizations unverified",
+      "sources": {
+        "ubereats": {
+          "item_id": "9d41e624-9cc3-48a5-b5eb-315aba27f230",
+          "expected_name": "Jalapeno Poppers (8 pcs)"
+        },
+        "doordash": {
+          "item_id": "10189302060",
+          "expected_name": "Jalapeno Poppers (8)"
+        }
+      }
+    }
+  ]
+}

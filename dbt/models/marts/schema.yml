@@ -1,0 +1,16 @@
+version: 2
+
+models:
+  - name: mart_latest_prices
+    description: Latest validated menu price for each provider, branch, item, variant, and fulfillment mode.
+    columns:
+      - name: observation_id
+        tests:
+          - not_null
+          - unique
+      - name: price_cents
+        tests:
+          - not_null
+      - name: age_hours
+        tests:
+          - not_null

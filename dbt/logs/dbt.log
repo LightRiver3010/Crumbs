@@ -1,0 +1,95 @@
+[0m18:26:31.628848 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'start', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x000001C854E36900>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x000001C852B49590>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x000001C857B6FB10>]}
+
+
+============================== 18:26:31.648021 | cb5e718c-04ee-4c5b-ac62-a062aff93180 ==============================
+[0m18:26:31.648021 [info ] [MainThread]: Running with dbt=1.13.0-b1
+[0m18:26:31.648949 [debug] [MainThread]: running dbt with arguments {'static_parser': 'True', 'no_print': 'None', 'maximum_seed_size_mib': '1', 'target_path': 'None', 'version_check': 'True', 'warn_error_options': 'WarnErrorOptionsV2(error=[], warn=[], silence=[])', 'printer_width': '80', 'write_json': 'True', 'introspect': 'True', 'log_cache_events': 'False', 'empty': 'None', 'cache_selected_only': 'False', 'fail_fast': 'False', 'debug': 'False', 'log_format': 'default', 'profiles_dir': 'dbt', 'send_anonymous_usage_stats': 'True', 'quiet': 'False', 'warn_error': 'None', 'partial_parse': 'True', 'invocation_command': 'dbt parse --project-dir dbt --profiles-dir dbt --target production', 'hints_enabled': 'True', 'indirect_selection': 'eager', 'use_experimental_parser': 'False', 'use_colors': 'True', 'log_path': 'dbt\\logs'}
+[0m18:26:31.650436 [debug] [MainThread]: Tracking: tracking
+[0m18:26:35.230084 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'project_id', 'label': 'cb5e718c-04ee-4c5b-ac62-a062aff93180', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x000001C871957E10>]}
+[0m18:26:35.321107 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'adapter_info', 'label': 'cb5e718c-04ee-4c5b-ac62-a062aff93180', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x000001C855C4CAF0>]}
+[0m18:26:35.322454 [info ] [MainThread]: Registered adapter: bigquery=1.12.3
+[0m18:26:36.325932 [debug] [MainThread]: checksum: f372749f01fa573ef5e22b396e4d077b3e344a10fe11159a4302024271670006, vars: {}, profile: hackumass26, target: production, version: 1.13.0b1
+[0m18:26:36.326921 [info ] [MainThread]: Unable to do partial parsing because saved manifest not found. Starting full parse.
+[0m18:26:36.327257 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'partial_parser', 'label': 'cb5e718c-04ee-4c5b-ac62-a062aff93180', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x000001C8719D0E50>]}
+[0m18:26:36.367271 [warn ] [MainThread]: [[33mWARNING[0m][PropertyMovedToConfigDeprecation]: Deprecated functionality
+Found `freshness` as a top-level property of `sources[0].tables[0]` in file
+`models\staging\_sources.yml`. The `freshness` top-level property should be
+moved into the `config` of `sources[0].tables[0]`.
+[0m18:26:36.367931 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'deprecation', 'label': 'cb5e718c-04ee-4c5b-ac62-a062aff93180', 'property_': 'warn', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x000001C872F10500>]}
+[0m18:26:42.213948 [warn ] [MainThread]: [[33mWARNING[0m][MissingArgumentsPropertyInGenericTestDeprecation]: Deprecated
+functionality
+Found top-level arguments to test `accepted_values` defined on
+'stg_menu_observations' in package 'hackumass26' (models\staging\schema.yml).
+Arguments to generic tests should be nested under the `arguments` property.
+[0m18:26:42.215083 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'deprecation', 'label': 'cb5e718c-04ee-4c5b-ac62-a062aff93180', 'property_': 'warn', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x000001C8730E8D70>]}
+[0m18:26:42.575699 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'load_project', 'label': 'cb5e718c-04ee-4c5b-ac62-a062aff93180', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x000001C872F8E340>]}
+[0m18:26:42.585094 [info ] [MainThread]: Performance info: dbt\target\perf_info.json
+[0m18:26:42.755997 [debug] [MainThread]: Wrote artifact WritableManifest to dbt\target\manifest.json
+[0m18:26:42.803798 [debug] [MainThread]: Wrote artifact SemanticManifest to dbt\target\semantic_manifest.json
+[0m18:26:42.873122 [debug] [MainThread]: Wrote artifact OsiDocument to dbt\target\osi_document.json
+[0m18:26:42.873952 [warn ] [MainThread]: [[33mWARNING[0m][DeprecationsSummary]: Deprecated functionality
+Summary of encountered deprecations:
+- PropertyMovedToConfigDeprecation: 2 occurrences
+- MissingArgumentsPropertyInGenericTestDeprecation: 1 occurrence
+To see all deprecation instances instead of just the first occurrence of each,
+run command again with the `--show-all-deprecations` flag. You may also need to
+run with `--no-partial-parse` as some deprecations are only encountered during
+parsing.
+[0m18:26:42.874656 [debug] [MainThread]: Command `python -m dbt.cli.main parse` succeeded at 18:26:42.874562 after 11.49 seconds
+[0m18:26:42.875649 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'end', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x000001C8733E2090>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x000001C873227D80>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x000001C8732250D0>]}
+[0m18:26:42.876404 [debug] [MainThread]: Flushing usage events
+[0m18:26:43.410013 [debug] [MainThread]: An error was encountered while trying to flush usage events
+[0m18:26:52.811987 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'start', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x00000193C00C6900>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x00000193BDDF1590>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x00000193C2E03B10>]}
+
+
+============================== 18:26:52.822075 | 18d734a3-43a8-4025-b28f-dd5ec2e58e19 ==============================
+[0m18:26:52.822075 [info ] [MainThread]: Running with dbt=1.13.0-b1
+[0m18:26:52.822584 [debug] [MainThread]: running dbt with arguments {'version_check': 'True', 'no_print': 'None', 'maximum_seed_size_mib': '1', 'target_path': 'None', 'warn_error_options': 'WarnErrorOptionsV2(error=[], warn=[], silence=[])', 'static_parser': 'True', 'printer_width': '80', 'write_json': 'True', 'introspect': 'True', 'log_cache_events': 'False', 'empty': 'None', 'cache_selected_only': 'False', 'log_format': 'default', 'debug': 'False', 'fail_fast': 'False', 'profiles_dir': 'dbt', 'send_anonymous_usage_stats': 'True', 'quiet': 'False', 'warn_error': 'None', 'partial_parse': 'False', 'invocation_command': 'dbt parse --no-partial-parse --project-dir dbt --profiles-dir dbt --target production', 'hints_enabled': 'True', 'indirect_selection': 'eager', 'use_experimental_parser': 'False', 'use_colors': 'True', 'log_path': 'dbt\\logs'}
+[0m18:26:52.822877 [debug] [MainThread]: Tracking: tracking
+[0m18:26:55.028787 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'project_id', 'label': '18d734a3-43a8-4025-b28f-dd5ec2e58e19', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x00000193DCB87E10>]}
+[0m18:26:55.126104 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'adapter_info', 'label': '18d734a3-43a8-4025-b28f-dd5ec2e58e19', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x00000193C0EDCAF0>]}
+[0m18:26:55.126987 [info ] [MainThread]: Registered adapter: bigquery=1.12.3
+[0m18:26:55.821117 [debug] [MainThread]: checksum: f372749f01fa573ef5e22b396e4d077b3e344a10fe11159a4302024271670006, vars: {}, profile: hackumass26, target: production, version: 1.13.0b1
+[0m18:26:55.822502 [debug] [MainThread]: Partial parsing not enabled
+[0m18:26:55.840046 [warn ] [MainThread]: [[33mWARNING[0m][PropertyMovedToConfigDeprecation]: Deprecated functionality
+Found `loaded_at_field` as a top-level property of `sources[0].tables[0]` in
+file `models\staging\_sources.yml`. The `loaded_at_field` top-level property
+should be moved into the `config` of `sources[0].tables[0]`.
+[0m18:26:55.840974 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'deprecation', 'label': '18d734a3-43a8-4025-b28f-dd5ec2e58e19', 'property_': 'warn', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x00000193DCC00E50>]}
+[0m18:26:58.332424 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'load_project', 'label': '18d734a3-43a8-4025-b28f-dd5ec2e58e19', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x00000193C0F13C50>]}
+[0m18:26:58.341422 [info ] [MainThread]: Performance info: dbt\target\perf_info.json
+[0m18:26:58.486347 [debug] [MainThread]: Wrote artifact WritableManifest to dbt\target\manifest.json
+[0m18:26:58.491885 [debug] [MainThread]: Wrote artifact SemanticManifest to dbt\target\semantic_manifest.json
+[0m18:26:58.554231 [debug] [MainThread]: Wrote artifact OsiDocument to dbt\target\osi_document.json
+[0m18:26:58.555168 [warn ] [MainThread]: [[33mWARNING[0m][DeprecationsSummary]: Deprecated functionality
+Summary of encountered deprecations:
+- PropertyMovedToConfigDeprecation: 1 occurrence
+To see all deprecation instances instead of just the first occurrence of each,
+run command again with the `--show-all-deprecations` flag. You may also need to
+run with `--no-partial-parse` as some deprecations are only encountered during
+parsing.
+[0m18:26:58.557483 [debug] [MainThread]: Command `python -m dbt.cli.main parse` succeeded at 18:26:58.557189 after 5.93 seconds
+[0m18:26:58.558387 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'end', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x00000193C2B0F4D0>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x00000193DCA94130>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x00000193C0FB2680>]}
+[0m18:26:58.559230 [debug] [MainThread]: Flushing usage events
+[0m18:26:59.105593 [debug] [MainThread]: An error was encountered while trying to flush usage events
+[0m18:27:12.548674 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'start', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x00000187B5EA6900>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x00000187B3BB9590>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x00000187B8BF7B10>]}
+
+
+============================== 18:27:12.556388 | f5876919-012f-4bcb-8bd7-148409db3694 ==============================
+[0m18:27:12.556388 [info ] [MainThread]: Running with dbt=1.13.0-b1
+[0m18:27:12.556806 [debug] [MainThread]: running dbt with arguments {'version_check': 'True', 'no_print': 'None', 'static_parser': 'True', 'warn_error_options': 'WarnErrorOptionsV2(error=[], warn=[], silence=[])', 'target_path': 'None', 'maximum_seed_size_mib': '1', 'printer_width': '80', 'write_json': 'True', 'empty': 'None', 'log_cache_events': 'False', 'introspect': 'True', 'cache_selected_only': 'False', 'fail_fast': 'False', 'debug': 'False', 'log_format': 'default', 'partial_parse': 'False', 'send_anonymous_usage_stats': 'True', 'quiet': 'False', 'warn_error': 'None', 'profiles_dir': 'dbt', 'invocation_command': 'dbt parse --no-partial-parse --project-dir dbt --profiles-dir dbt --target production', 'hints_enabled': 'True', 'indirect_selection': 'eager', 'use_experimental_parser': 'False', 'use_colors': 'True', 'log_path': 'dbt\\logs'}
+[0m18:27:12.557062 [debug] [MainThread]: Tracking: tracking
+[0m18:27:14.946458 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'project_id', 'label': 'f5876919-012f-4bcb-8bd7-148409db3694', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x00000187D2973E10>]}
+[0m18:27:15.049173 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'adapter_info', 'label': 'f5876919-012f-4bcb-8bd7-148409db3694', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x00000187B6CCCAF0>]}
+[0m18:27:15.050537 [info ] [MainThread]: Registered adapter: bigquery=1.12.3
+[0m18:27:15.718440 [debug] [MainThread]: checksum: f372749f01fa573ef5e22b396e4d077b3e344a10fe11159a4302024271670006, vars: {}, profile: hackumass26, target: production, version: 1.13.0b1
+[0m18:27:15.719285 [debug] [MainThread]: Partial parsing not enabled
+[0m18:27:18.058160 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'load_project', 'label': 'f5876919-012f-4bcb-8bd7-148409db3694', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x00000187D4002950>]}
+[0m18:27:18.067372 [info ] [MainThread]: Performance info: dbt\target\perf_info.json
+[0m18:27:18.250778 [debug] [MainThread]: Wrote artifact WritableManifest to dbt\target\manifest.json
+[0m18:27:18.256870 [debug] [MainThread]: Wrote artifact SemanticManifest to dbt\target\semantic_manifest.json
+[0m18:27:18.336939 [debug] [MainThread]: Wrote artifact OsiDocument to dbt\target\osi_document.json
+[0m18:27:18.338397 [debug] [MainThread]: Command `python -m dbt.cli.main parse` succeeded at 18:27:18.338190 after 5.91 seconds
+[0m18:27:18.339020 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'end', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x00000187D3C3F110>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x00000187D3C3EF30>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x00000187D42BDD30>]}
+[0m18:27:18.339609 [debug] [MainThread]: Flushing usage events
+[0m18:27:18.919196 [debug] [MainThread]: An error was encountered while trying to flush usage events

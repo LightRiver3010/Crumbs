@@ -1,0 +1,21 @@
+version: 2
+
+models:
+  - name: stg_menu_observations
+    description: Valid USD menu observations normalized from the raw ingestion table.
+    columns:
+      - name: observation_id
+        tests:
+          - not_null
+          - unique
+      - name: run_id
+        tests:
+          - not_null
+      - name: price_cents
+        tests:
+          - not_null
+      - name: currency
+        tests:
+          - accepted_values:
+              arguments:
+                values: ["USD"]

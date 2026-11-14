@@ -1,0 +1,12 @@
+hackumass26:
+  target: production
+  outputs:
+    production:
+      type: bigquery
+      method: "{{ env_var('DBT_BIGQUERY_METHOD', 'oauth') }}"
+      project: "{{ env_var('DBT_BIGQUERY_PROJECT', 'hackumass26') }}"
+      dataset: "{{ env_var('DBT_BIGQUERY_DATASET', 'analytics') }}"
+      location: "{{ env_var('DBT_BIGQUERY_LOCATION', 'US') }}"
+      threads: 4
+      job_execution_timeout_seconds: 300
+      priority: interactive

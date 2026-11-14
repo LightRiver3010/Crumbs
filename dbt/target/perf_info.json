@@ -1,0 +1,51 @@
+{
+    "path_count": 176,
+    "parsed_path_count": 176,
+    "static_analysis_path_count": 2,
+    "static_analysis_parsed_path_count": 2,
+    "is_partial_parse_enabled": false,
+    "is_static_analysis_enabled": true,
+    "read_files_elapsed": 0.0820088000036776,
+    "load_macros_elapsed": 0.9909879000042565,
+    "parse_project_elapsed": 1.0738111999817193,
+    "patch_sources_elapsed": 0.03633380000246689,
+    "process_manifest_elapsed": 0.06072780000977218,
+    "load_all_elapsed": 2.346200299973134,
+    "projects": [
+        {
+            "project_name": "hackumass26",
+            "elapsed": 1.0684999999939464,
+            "parsers": [
+                {
+                    "parser": "model",
+                    "elapsed": 0.30077620001975447,
+                    "parsed_path_count": 2
+                },
+                {
+                    "parser": "test",
+                    "elapsed": 0.7656147999805398,
+                    "parsed_path_count": 3
+                }
+            ],
+            "parsed_path_count": 5
+        },
+        {
+            "project_name": "dbt_bigquery",
+            "elapsed": 0.002743599994573742,
+            "parsers": [],
+            "parsed_path_count": 0
+        },
+        {
+            "project_name": "dbt",
+            "elapsed": 0.0024055000103544444,
+            "parsers": [
+                {
+                    "parser": "doc",
+                    "elapsed": 0.00032389999250881374,
+                    "parsed_path_count": 1
+                }
+            ],
+            "parsed_path_count": 1
+        }
+    ]
+}

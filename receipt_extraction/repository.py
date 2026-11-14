@@ -22,3 +22,16 @@ def save(session_id, upload, raw_uri, extraction):
 
 if __name__ == "__main__":
     setup()
+
+
+def read_orders(session_id):
+    """Read only this session's confirmed warehouse orders."""
+    client=get_client()
+    config=bigquery.QueryJobConfig(query_parameters=[bigquery.ScalarQueryParameter("session","STRING",session_id)],maximum_bytes_billed=100*1024**2)
+    rows=client.query(f"SELECT * FROM `{PROJECT}.receipts.user_orders` WHERE session_id=@session ORDER BY saved_at,order_id",job_config=config).result()
+    result=[]
+    for row in rows:
+        order=dict(row)
+        order["items"]=json.loads(order.pop("items_json") or "[]")
+        result.append(order)
+    return result

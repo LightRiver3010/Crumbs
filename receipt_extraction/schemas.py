@@ -14,6 +14,7 @@ class Order(BaseModel):
     provider: str | None = None
     order_reference: str | None = None
     order_date: date | None = None
+    order_date_text: str | None = None
     total_cents: int | None = Field(default=None, ge=0)
     currency: str | None = Field(default=None, pattern=r"^[A-Z]{3}$")
     items: list[Item] = Field(default_factory=list)
