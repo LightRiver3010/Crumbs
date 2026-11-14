@@ -1,0 +1,251 @@
+# Student Delivery Savings Platform
+## Updated hackathon blueprint
+
+This document supersedes the original **Food Delivery Financial Regret Engine** plan. It records the agreed product direction, tentative implementation, unresolved feasibility questions, and a time-boxed build plan. Estimates assume one developer learning the technologies with AI writing much of the code; they include integration, debugging, and understanding the results.
+
+## 1. Purpose and scope
+
+Help college students understand their delivery spending and discover realistic ways to save without feeling judged. A regularly refreshed dashboard compares matched meals across nearby restaurants, delivery services, and direct ordering, grouped by restaurant and food category, with observed price history. Students can upload 2–3 order-history screenshots to personalize spending summaries, then explore two paths: **keep their routine and switch to cheaper options**, or **replace an occasional delivery with a dining-hall meal or another alternative**. Both paths show potential weekly, monthly, and semester savings.
+
+The primary career objective is meaningful Data Engineering experience: scheduled ingestion, immutable raw inputs, normalization, matching, historical modeling, quality checks, idempotent reruns, and failure recovery. Student participation and optional self-reported intent to change are useful outcomes, not evidence of actual behavior change.
+
+### Product priorities
+
+1. A useful public price dashboard even before anyone uploads a screenshot.
+2. A quick personal spending summary and one actionable savings scenario.
+3. Provider comparisons and price history where reliable, comparable data exists.
+4. Optional national context, only after verifying a defensible dataset.
+
+Avoid account creation for the demo. Use encouraging language and editable assumptions. Do not make AI-generated jokes, guilt, or investment projections the core value.
+
+### Minimal hackathon scope
+
+- One campus area; initially 3–5 restaurant locations and approximately 10–20 carefully matched meals.
+- Target DoorDash and Uber Eats plus direct menus, but commit to coverage only after testing access. Never imply a source is live when using fixtures.
+- One screenshot platform/layout first; add the second if time permits.
+- Two Streamlit pages: **Explore prices** and **My spending & savings**. Keep history expandable rather than adding many navigation choices.
+- One Airflow ingestion DAG, a compact dbt project, and native BigQuery tables.
+- No Spark, Iceberg, Kafka, banking integration, or automatic purchase execution in the MVP.
+- Long-term investment scenarios are deferred. Semester savings provide the immediate value.
+
+## 2. User experience and calculation boundaries
+
+### Public experience
+
+Browse restaurants and meal categories; inspect matched prices by provider, observation time, and source coverage. Food-category summaries use a common matched-item set or defined meal basket—not an average of every platform's unrelated menu items. Distinguish portion sizes, modifiers, and pickup versus delivery.
+
+### Screenshot incentive
+
+“What does your delivery habit add up to? Upload 2–3 screenshots to see your spending and explore one easy way to save.”
+
+Present only three initial results:
+
+1. **Your spending:** total and average across uploaded orders.
+2. **Your context:** one defensible benchmark, if available; otherwise local observed meal-price context.
+3. **Your opportunity:** one configurable savings scenario, with “Find cheaper options” and “Try one weekly swap.”
+
+Order-history screenshots can contain restaurant, date, and total, but do not reliably identify full baskets. Missing values remain missing. Specific meal comparisons require meal selection or an optional expanded receipt/cart screenshot. Validate this with current screenshots before implementing broad support.
+
+Do not interpret a screenshot sample as a complete week or month. Ask users to confirm typical frequency before extrapolating. The original 15–20-second upload and 5–8-second end-to-end targets are unverified aspirations, not commitments; measure the actual flow.
+
+### Savings semantics
+
+- **Observed:** uploaded spending and timestamped menu prices.
+- **Estimated:** checkout totals with stated fee/tip assumptions.
+- **Hypothetical:** future savings based on user-confirmed frequency and replacement choices.
+- Weekly switching savings = matched saving per order × applicable orders per week.
+- Weekly substitution savings = (baseline order cost − replacement meal cost) × replacements per week.
+- Monthly scenarios use a disclosed convention, such as weekly savings × 52/12; semester scenarios use actual remaining weeks.
+- When combining paths, switching applies only to deliveries that remain after substitutions.
+- “Could save” is appropriate; “you saved” requires actual purchase evidence.
+- A comparison to average order value should say “monthly savings equal X% of one typical order,” not imply a percentage reduction in monthly spending.
+- Current prices cannot establish what another provider would have charged for an old order.
+
+Checkout total = item subtotal + fees + taxes + tip − discounts. Missing checkout components are not zero. Show menu-price savings separately; optionally show the additional fee difference that would erase them. Hold a user-selected tip rule consistent across alternatives, with overrides allowed.
+
+Use an editable dining alternative price. The user's approximate $19/swipe is a starting assumption, not a verified UMass tariff. Distinguish an already-paid swipe's marginal cash cost from allocated meal-plan cost. One delivery order may feed multiple people; let users adjust the comparison.
+
+### National benchmarks
+
+The desired hook is “See how you compare—and how you could save.” A suitable national individual delivery-spending dataset has **not** been established. Household food-away-from-home averages cannot be relabeled student delivery averages. A mean cannot produce a percentile. Validate population, units, categories, period, and survey weights before calculating statistics. Store release metadata and precompute appropriate results; refresh on publication, not every few hours. Hide this feature if the evidence does not support it.
+
+## 3. Architecture
+
+```mermaid
+flowchart TD
+    Sources[Verified menus and offers] --> Fetch[Python source adapters]
+    Airflow[Airflow scheduled DAG] --> Fetch
+    Fetch --> Raw[GCS raw snapshots and run manifests]
+    Raw --> Load[Python normalization and idempotent load]
+    Load --> BQRaw[BigQuery raw datasets]
+    Airflow --> DBT[dbt build and quality gates]
+    BQRaw --> DBT
+    DBT --> Marts[BigQuery price and benchmark marts]
+    Bench[Verified public dataset releases] --> Raw
+    Marts --> UI[Streamlit price dashboard]
+    User[Student] --> UI
+    UI --> Upload[Private upload storage]
+    Upload --> Vision[Supported vision model and Pydantic validation]
+    Vision --> Review[Editable extracted order preview]
+    Review --> Orders[Session-scoped confirmed orders]
+    Orders --> UI
+    Orders --> Persist[Idempotent persistence to BigQuery]
+    UI --> Calc[Shared tested savings formulas]
+    Marts --> Calc
+    Calc --> Results[Spending context and savings scenarios]
+```
+
+The upload fast path does not wait for the scheduled DAG or a full dbt rebuild. Compute immediate personal summaries from confirmed session data and current price marts. Persist orders for later processing; lightweight SQL views can expose current uploaded records without stale materialized marts. Session calculations and warehouse models must use the same documented definitions.
+
+## 4. Technology roles
+
+| Technology | Pipeline location | Purpose and learning value |
+|---|---|---|
+| Python | Scraping, parsing, loading, calculations | Explicit source adapters, retries, normalization, deterministic IDs, and testable transformations. |
+| Google Cloud Storage | Raw landing layer | Retain timestamped source snapshots and manifests for debugging and replay. Raw retention enables replay; idempotency still requires load keys and deduplication. |
+| BigQuery | Warehouse | Native tables for observations, orders, dimensions, and marts; SQL analysis and historical comparisons without operating a database server. |
+| dbt + SQL | Transformation layer | Versioned staging/intermediate/mart models, lineage, incremental transformations, tests, and transparent metric definitions. |
+| Apache Airflow | Scheduled control plane | Schedule source collection, coordinate loading and dbt, record failures, retry transient errors, and support explicit replay/backfill runs. |
+| Streamlit | Serving layer | Fast Python-based dashboards, uploads, editable previews, filters, and savings controls. |
+| Supported vision model + Pydantic | Upload extraction | Extract visible fields into a validated schema. Schema validity is not factual accuracy; reconciliation and user corrections remain necessary. |
+| Docker Compose | Local Airflow environment | Reproducible services and dependencies. Use a compatible maintained Airflow configuration rather than assuming the original blueprint's service names. |
+| Git and small automated checks | Development | Reproducibility, source fixtures, regression checks for money calculations, deduplication, and matching. |
+
+GCS is the proposed default to stay in the same cloud as BigQuery. S3 can replace it if AWS experience is a priority, but avoid maintaining both. Spark/Iceberg remain post-hackathon learning extensions rather than dependencies. Select a currently supported vision model and verify quotas; the original Gemini 2.0 Flash choice is obsolete.
+
+## 5. Ingestion and reliability design
+
+- **Access gate:** prove retrieval for one actual restaurant on each desired source before scaling. Prefer accessible permitted sources; do not build around bypassing anti-bot challenges. Platform-wide access is unresolved.
+- **Initial cadence:** menu collection every six hours is a starting engineering choice, subject to limits and observed change frequency. Campus menus may refresh daily; public benchmarks refresh with releases.
+- **Observation context:** record source URL, restaurant branch, provider, fulfillment mode, currency, timestamp, and destination/account context if relevant. Never generalize a personalized quote to everyone.
+- **History:** append successful collection observations. Replaying the same run must not create duplicates; a fresh observation of an unchanged price is legitimate history.
+- **Matching:** start with a manually reviewed mapping of canonical items, sizes, and modifiers. Keep ambiguous matches out of rankings. Cuisine tags may be manually curated initially.
+- **Failure behavior:** retain the last successful dataset with an explicit stale indicator. Label seed/demo fixtures separately; do not silently substitute them as fresh observations.
+- **Recovery:** retry transient fetch failures, quarantine invalid records, and rerun a failed run from its raw snapshot. A historical backfill requires historical input; today's scrape cannot recreate yesterday's prices.
+- **Privacy:** private upload objects, short retention with deletion, no receipt contents in logs, anonymous session scoping, parameterized queries, and no cross-user caching of private results. Demo with redacted examples.
+- **Cost:** small source set, bounded retries, warehouse query limits, cached public marts, and cloud budget alerts.
+
+## 6. Tentative warehouse and dbt model
+
+Use BigQuery datasets `raw`, `staging`, `intermediate`, and `analytics` (mapping dbt schemas deliberately through configuration). All money uses integer cents or BigQuery NUMERIC with explicit currency, never floating-point arithmetic for accounting.
+
+| Dataset/table | Grain and important fields |
+|---|---|
+| `raw.ingestion_runs` | One source run: run ID, source, requested/finished times, status, raw URI, row count, errors. |
+| `raw.menu_observations` | One source item/variant per collection: observation ID, run ID, branch/provider/item IDs, name, options, price, currency, mode, observed time. |
+| `raw.upload_extractions` | One extraction attempt: session/upload IDs, image hash, model/parser version, status, raw output reference. |
+| `raw.user_orders` | One confirmed order/version: session ID, order ID if visible, merchant, date, total, currency, upload reference, confirmation status. |
+| `raw.benchmark_releases` | One published statistic or validated source record: release, period, population, units, definition, source. |
+| `analytics.dim_restaurant_location` | One physical branch, with restaurant name and curated category tags. |
+| `analytics.dim_item` | One canonical meal/variant, size, portion/options definition, category. |
+| Mapping seed/table | Source item/branch → canonical IDs, match method, review status. |
+| `analytics.fct_price_observations` | One validated source-item observation with canonical IDs and provenance. |
+| `analytics.fct_orders` | One accepted order per session, deduplicated without blindly merging distinct same-price orders. |
+| `analytics.mart_latest_prices` | Latest valid observation per provider/branch/item/variant/mode, including age and freshness. |
+| `analytics.mart_provider_comparisons` | Comparable item/basket × provider pair, price difference, observation times, and coverage. |
+| `analytics.mart_price_history` | Daily last observed price per comparable item/provider; gaps remain visible. |
+| `analytics.mart_spending_context` | Valid benchmark statistic with definition and release metadata. |
+
+```mermaid
+flowchart LR
+    RawMenus[raw.menu_observations] --> StgMenus[stg_menu_observations]
+    Mapping[Reviewed mapping seeds] --> Match[int_matched_items]
+    StgMenus --> Match
+    Match --> History[fct_price_observations]
+    History --> Latest[mart_latest_prices]
+    History --> Trends[mart_price_history]
+    Latest --> Compare[mart_provider_comparisons]
+    RawOrders[raw.user_orders] --> StgOrders[stg_user_orders]
+    StgOrders --> Dedup[int_deduplicated_orders]
+    Dedup --> Orders[fct_orders / current order view]
+    RawBench[raw.benchmark_releases] --> StgBench[stg_benchmarks]
+    StgBench --> Context[mart_spending_context]
+    Compare --> Dashboard[Streamlit]
+    Trends --> Dashboard
+    Orders --> Dashboard
+    Context --> Dashboard
+```
+
+### Major SQL operations and displayed results
+
+- **Staging:** cast types, normalize names and timestamps, preserve nulls, identify invalid money/currency records. Invalid records go to a reject model rather than disappearing silently.
+- **Deduplication:** `ROW_NUMBER` over reliable source/run keys; for screenshot overlaps use available order IDs or conservative fingerprints with ambiguity review. Hashes of images alone do not detect overlapping orders.
+- **Latest prices:** `ROW_NUMBER ... QUALIFY` partitioned by comparable item, provider, branch, and mode, ordered by observation time. Expose stale rows explicitly.
+- **Comparisons:** join on reviewed canonical keys; calculate absolute and percentage differences using `SAFE_DIVIDE`. Compare common coverage, not different menu mixes.
+- **History:** use `LAG` to compute price changes; aggregate observations to display resolution without inventing prices in missing periods.
+- **Category summaries:** aggregate matched-item percentage gaps or fixed-basket totals; show sample counts and coverage. Do not equate a food category with identical products.
+- **Spending:** `SUM`, `COUNT`, and average accepted order totals scoped to the session. Any monthly extrapolation uses explicit user frequency.
+- **Benchmarks:** calculate only supported weighted/unweighted statistics using the source's methodology. No invented percentile from an average.
+
+### Essential quality checks
+
+Unique observation/run keys; required source and canonical relationship checks; nonnegative prices with refund handling separate; valid currencies; freshness/coverage indicators; basket variant compatibility. Test that replay does not duplicate observations, screenshot overlap does not double-count, and combined savings do not double-count substituted orders. Verify totals reconcile when detailed receipt components are actually available.
+
+## 7. Phases and generous effort estimates
+
+Estimates are focused person-hours, not guarantees. AI reduces typing time but not account setup, access failures, understanding schemas, or validating outputs. The full sequence below is **31–57 hours after pre-work**, so a solo 24-hour event requires substantial cuts; even a 36–48-hour event needs strict scope control and rest. Check event rules before doing project-specific pre-work.
+
+| Phase | Work and concrete completion criterion | Estimate | Dependencies / interchangeability |
+|---|---|---|---|
+| **0. Allowed pre-work and setup** | Verify hackathon rules; create cloud project, billing alerts, GCS bucket, BigQuery datasets, credentials, and model access. Install Python, Git, Docker/WSL as applicable, dbt adapter, and Airflow environment. Choose local host or an approved VM, not both. Obtain consented/redacted sample screenshots and candidate benchmark files if permitted. Confirm Docker and a warehouse query work. | **4–8 h**, outside event only if allowed | Account setup, tool tutorials, and dataset scouting can be independent. A VM is optional; local Airflow plus hosted/demo Streamlit is sufficient. |
+| **1. Feasibility gate** | Retrieve one menu from each desired source; inspect current screenshots; verify candidate benchmark semantics. Decide source coverage and MVP. Preserve samples and document failures. | **3–5 h** | Requires relevant access from phase 0. Menu, screenshot, and benchmark checks can proceed independently. Stop unsupported source work early. |
+| **2. End-to-end thin slice** | One collected menu → raw object → BigQuery → one dbt model → one Streamlit table. Define grain and IDs. | **3–5 h** | Needs one successful source from phase 1. Establishes interfaces for later work. |
+| **3. Durable ingestion and history** | Add small source coverage, timestamps, manifests, idempotent loads, explicit retries/rejects, and raw replay. Demonstrate a rerun without duplicates. | **5–9 h** | Depends on phase 2. Can overlap conceptually with UI and extraction work once schemas are fixed. |
+| **4. dbt comparisons and quality** | Reviewed matching seeds, latest-price and history marts, common-basket comparisons, tests, freshness and coverage. | **4–7 h** | Requires phase 2 schema and some real observations; does not require all phase 3 sources. |
+| **5. Airflow orchestration** | DAG: fetch → raw persist → load → dbt build → publish run status. Trigger two runs and one recoverable failure. Scheduled ingestion remains a core deliverable. | **4–7 h** | Requires callable ingestion and dbt commands from phases 3–4. DAG scaffolding can start earlier. |
+| **6. Screenshot personalization** | Upload, extract visible fields, editable preview, overlap handling, session summary, optional frequency. Support one layout first. | **4–8 h** | Depends on phase 1 samples and shared schema; independent of phases 3–5 after phase 2 interfaces. |
+| **7. Integrated dashboards and savings** | Public prices/history; personal summary; switching and substitution calculators; clear assumptions and timestamps. | **4–7 h** | UI shell can begin in phase 2. Final integration needs phase 4 marts and phase 6 for upload personalization. Savings formulas can be built before extraction. |
+| **8. Demo hardening and explanation** | Verify privacy/scoping, reruns, failure display, math, refresh behavior, and latency. Rehearse live and clearly labeled fixture demos. Prepare architecture and README. | **4–6 h** | Final integration required; begin rehearsal early. Reserve this time rather than consuming it on extra sources. |
+
+### Dependency overview
+
+```mermaid
+flowchart LR
+    P0[0 Setup] --> P1[1 Feasibility]
+    P1 --> P2[2 Thin slice]
+    P2 --> P3[3 Ingestion]
+    P2 --> P4[4 dbt models]
+    P3 --> P5[5 Airflow]
+    P4 --> P5
+    P1 --> P6[6 Screenshot extraction]
+    P2 --> P6
+    P4 --> P7[7 Dashboards and savings]
+    P6 --> P7
+    P5 --> P8[8 Hardening and demo]
+    P7 --> P8
+```
+
+“Independent” means work can be reordered or split among teammates; it does not reduce a solo developer's person-hours automatically.
+
+### Hard time-box and cut order
+
+- **First 3–5 hours:** establish access. If two delivery services cannot be reliably collected, reduce provider coverage and state that limitation. Do not spend the whole event fighting scraping.
+- **By the midpoint:** require a working scheduled-source-to-dashboard path. Stop expanding source count until this works.
+- **Cut first:** national context, long-term investing, automatic semantic matching, checkout-fee collection, alerts, additional screenshot layouts, and extensive styling.
+- **Then reduce:** restaurant/item count, historical chart sophistication, and secondary alternatives. Keep at least one honest savings scenario.
+- **Preserve:** scheduled real-source ingestion, BigQuery, dbt + SQL, Streamlit, timestamps/provenance, and a recoverable rerun. If upload integration misses the deadline, demo it separately with explicit status rather than pretending it is integrated.
+- **Final 4–6 hours:** freeze features and verify the demo. If no reliable live source exists, acknowledge the ingestion feasibility failure; fixture replay demonstrates processing but is not live scraping.
+
+## 8. Demo and success measures
+
+Demonstrate a real observation entering the warehouse, a price comparison with provenance, a screenshot summary, and both savings paths. Re-run a batch and show unchanged counts; simulate one fetch failure and show stale data clearly. Real price changes may not occur during the event—use labeled test fixtures only for demonstrating change handling.
+
+Track anonymous upload starts, completed analyses, selected scenarios, and optional answers to “Would this change how you order?” Report completed sessions unless unique participants are actually established. Do not describe stated intent as verified financial savings.
+
+## 9. Known constraints and reference notes
+
+- Platform collection access, nationwide benchmark suitability, screenshot completeness, and checkout-quote collection remain unproven.
+- Menu prices do not establish final delivered cost. Destination, timing, membership, offers, taxes, and tip assumptions can change comparisons.
+- Price update frequency has no established universal cadence; six-hour polling is a proposed starting point, not a platform guarantee.
+- The original claim that Iceberg is needed to solve S3 eventual consistency was incorrect; S3 already provides strong consistency.
+
+References checked during planning; recheck before implementation:
+
+- [Uber receipt and order-history navigation](https://help.uber.com/ubereats/stores/article/how-do-i-view-my-receipts-and-order-history?nodeId=cd19e6fd-4019-48b4-b356-3f1ec5d1f6eb)
+- [Uber merchant menu pricing](https://merchants.ubereats.com/us/en/resources/articles/menu-pricing/)
+- [DoorDash POS menu synchronization](https://help.doordash.com/en-us/merchants/article/integration-manage-menu)
+- [DoorDash July 2026 fee rollout and initial Massachusetts exclusion](https://about.doordash.com/en-us/news/updating-our-fee-structure)
+- [Uber delivery-fee factors](https://help.uber.com/en/merchants-and-restaurants/article/what-is-the-delivery-fee?nodeId=275f38aa-2092-4f02-a21a-4ec39a7c57ab)
+- [BLS expenditure-table interpretation](https://www.bls.gov/cex/tables-getting-started-guide.htm)
+- [Gemini 2.0 Flash model status](https://ai.google.dev/gemini-api/docs/models/gemini-2.0-flash)
+- [S3 consistency](https://aws.amazon.com/s3/consistency/)
