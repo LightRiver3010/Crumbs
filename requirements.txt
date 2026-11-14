@@ -4,3 +4,9 @@ beautifulsoup4>=4.12,<5
 python-dotenv>=1,<2
 requests>=2.32,<3
 
+
+google-genai>=1,<2
+pydantic>=2,<3
+streamlit>=1.40,<2
+Pillow>=11,<13
+pillow-heif>=0.20,<2

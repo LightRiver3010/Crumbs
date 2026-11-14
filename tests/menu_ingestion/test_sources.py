@@ -1,4 +1,4 @@
-﻿import argparse
+import argparse
 import copy
 import json
 from pathlib import Path
@@ -6,13 +6,13 @@ import sys
 import tempfile
 import unittest
 from unittest.mock import patch
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
-import ingest_menu as pipeline
-from test_menu_parser import card, page, STORE
+from menu_ingestion import ingest_menu as pipeline
+from tests.menu_ingestion.test_menu_parser import card, page, STORE
 
 class SourceTests(unittest.TestCase):
     def setUp(self):
         self.config = json.loads((pipeline.ROOT / "config/sources.json").read_text())
+        self.config["sources"] = [self.config["sources"][0]]
     def load(self, config):
         with tempfile.TemporaryDirectory() as folder:
             path = Path(folder) / "sources.json"
@@ -21,13 +21,13 @@ class SourceTests(unittest.TestCase):
     def test_two_restaurants_supported(self):
         second = copy.deepcopy(self.config["sources"][0])
         second.update(id="second-restaurant", expected_heading="Another Restaurant",
-                      store_uuid="11111111-1111-4111-8111-111111111111")
+                      store_id="11111111-1111-4111-8111-111111111111")
         self.config["sources"].append(second)
         sources = self.load(self.config)
         self.assertEqual(len(sources), 2)
         html = page(card()).replace("Primo too Amherst", "Another Restaurant").replace(
-            STORE, second["store_uuid"])
-        rows, rejects, _ = pipeline.parse_menu(html, second["store_uuid"], "Another Restaurant")
+            STORE, second["store_id"])
+        rows, rejects, _ = pipeline.parse_menu(html, second["store_id"], "Another Restaurant")
         self.assertEqual(len(rows), 1)
         self.assertEqual(rejects, [])
     def test_wrong_heading_rejected(self):

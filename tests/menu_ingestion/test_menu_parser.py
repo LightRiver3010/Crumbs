@@ -1,11 +1,10 @@
-﻿"""Synthetic fixtures test parser behavior; these are not live observations."""
+"""Synthetic fixtures test parser behavior; these are not live observations."""
 import sys
 from pathlib import Path
 import unittest
 import json
 from urllib.parse import quote
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
-from ingest_menu import parse_menu
+from menu_ingestion.ingest_menu import parse_menu
 
 STORE = "8be06cab-de88-569c-99b7-9ad79d1cf936"
 ITEM = "31fe9d85-a0cb-4ae7-a72d-d0addfbf6288"

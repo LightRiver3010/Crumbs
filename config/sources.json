@@ -15,7 +15,9 @@
       "enabled": true,
       "expected_heading": "Primo too Amherst",
       "url": "https://www.ubereats.com/store/primo-too-amherst/i-Bsq96IVpyZt5rXnRz5Ng?diningMode=DELIVERY&pl=JTdCJTIyYWRkcmVzcyUyMiUzQSUyMkhvdGVsJTIwVU1hc3MlMjIlMkMlMjJyZWZlcmVuY2UlMjIlM0ElMjIyODJlYmE0Yi05YjAxLTMzNzgtYTQ1My0wMTU3NjAzYzcyN2QlMjIlMkMlMjJyZWZlcmVuY2VUeXBlJTIyJTNBJTIydWJlcl9wbGFjZXMlMjIlMkMlMjJsYXRpdHVkZSUyMiUzQTQyLjM5MTgyMDglMkMlMjJsb25naXR1ZGUlMjIlM0EtNzIuNTI3MjE1NSU3RA%3D%3D&ps=1&surfaceName=",
-      "store_uuid": "8be06cab-de88-569c-99b7-9ad79d1cf936"
+      "store_id": "8be06cab-de88-569c-99b7-9ad79d1cf936",
+      "html_only_tested": true,
+      "html_only_matches_js": true
     },
     {
       "id": "taco-bell",
@@ -23,7 +25,19 @@
       "enabled": true,
       "expected_heading": "Taco Bell",
       "url": "https://www.doordash.com/store/taco-bell-northampton-1199296/1751802/?cursor=eyJzdG9yZV9wcmltYXJ5X3ZlcnRpY2FsX2lkcyI6WzEsMTAwMzMzLDExMDAzNywxMTAwNDUsMTEwMDUyLDExMDA1NSwxMTAwNjIsMTEwMDgyLDExMDA4MywxNzYsMTkyLDExMDA1OCwxOTMsMTk1XSwiY2Fyb3VzZWxfaWQiOiIwOGVjOTQ5YS1kMzZjLTQ1NmEtYmVmMi03MDdiYWUyZjA4NTkiLCJjYXJvdXNlbF90aXRsZSI6Ik5hdGlvbmFsIGZhdm9yaXRlcyJ9&pickup=false",
-      "store_uuid": "8be06cab-de88-569c-99b7-9ad79d1cf936"
+      "store_id": "1199296",
+      "html_only_tested": true,
+      "html_only_matches_js": false
+    },
+    {
+      "id": "popeyes",
+      "provider": "ubereats",
+      "enabled": true,
+      "expected_heading": "Popeyes Louisiana Chicken",
+      "url": "https://www.ubereats.com/store/popeyes-louisiana-chicken-3-south-maple-street-hadley/WnBtLsEeXaS3ih7bJdbVgA?diningMode=DELIVERY&ps=1&sc=SEARCH_SUGGESTION",
+      "store_id": "WnBtLsEeXaS3ih7bJdbVgA",
+      "html_only_tested": false,
+      "html_only_matches_js": false
     }
   ]
 }
