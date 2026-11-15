@@ -5,8 +5,9 @@ from PIL import Image
 from pydantic import ValidationError
 from receipt_extraction.schemas import Extraction, Order
 from receipt_extraction.images import normalize_image
-from receipt_extraction.deduplication import order_id
+from receipt_extraction.deduplication import order_id, remove_exact_duplicate_orders
 from receipt_extraction import pipeline, repository, gemini_client
+from frontend.receipt_savings import optimal_savings
 
 class ReceiptTests(unittest.TestCase):
     @patch.dict("os.environ", {"GEMINI_API_KEY": "test-placeholder"})
@@ -75,6 +76,24 @@ class ReceiptTests(unittest.TestCase):
         self.assertNotEqual(order_id("s","a",0,order),order_id("t","a",0,order))
     def test_no_reference_keeps_distinct_orders(self):
         self.assertNotEqual(order_id("s","a",0,Order()),order_id("s","a",1,Order()))
+    def test_exact_duplicate_orders_are_removed(self):
+        order=Order(restaurant="Cafe",total_cents=1200,order_date="2026-11-15")
+        changed=order.model_dump()
+        changed["total_cents"]=1300
+        extraction,removed=remove_exact_duplicate_orders(Extraction(orders=[order,order,Order(**changed)]))
+        self.assertEqual(removed,1)
+        self.assertEqual(len(extraction.orders),2)
+        self.assertIn("exact duplicate", extraction.warnings[0])
+    def test_optimal_savings_uses_current_lower_platform_price(self):
+        sources=[dict(id=provider,provider=provider,restaurant_id="cafe-amherst",
+                      expected_heading="Cafe",fulfillment_mode="DELIVERY")
+                 for provider in ("ubereats","doordash")]
+        menus={provider:[{"source_item_id":provider,"item_name":"Pizza","price_cents":price,
+                         "currency":"USD","variant":None}
+                ] for provider,price in (("ubereats",1200),("doordash",1000))}
+        orders=[{"restaurant":"Cafe","provider":"Uber Eats","items":[{"name":"Pizza","quantity":2}]}]
+        result=optimal_savings(orders,sources,menus)
+        self.assertEqual(result,{"savings_cents":400,"comparable_lines":1})
     @patch.object(pipeline,"extract_image")
     @patch.object(pipeline,"upload_image",return_value="s3://bucket/key")
     @patch.object(pipeline,"normalize_image",return_value=b"png")

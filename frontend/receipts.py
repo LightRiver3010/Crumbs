@@ -21,6 +21,18 @@ def _show_extraction_status(upload_name, message):
     st.info(f"We couldn't finish reading {upload_name}. {message}")
 
 
+def _order_summary(extraction):
+    return [{
+        "Restaurant": order.restaurant or "Unknown",
+        "Date": order.order_date.isoformat() if order.order_date else order.order_date_text or "Unknown",
+        "Total": f"${order.total_cents / 100:,.2f}" if order.total_cents is not None else "Unknown",
+        "Items": ", ".join(
+            f"{item.name} ×{item.quantity}" if item.quantity else item.name
+            for item in order.items
+        ) or "No visible items",
+    } for order in extraction.orders]
+
+
 def render():
     section_header("COLLECT YOUR CRUMBS", "Your delivery orders", "Upload a few receipts to spot the small habits that add up.")
     st.write("More screenshots = more accurate data")
@@ -58,31 +70,27 @@ def render():
                     with st.expander("Details to review"):
                         for warning in extraction.warnings:
                             st.caption(warning)
-                st.caption("Edit JSON as needed. Amounts are cents. Remove duplicate orders from overlapping screenshots; retain exact item sizes and counts.")
-                edited=st.text_area("Extracted orders",extraction.model_dump_json(indent=2),height=280,key="review_"+key)
-                st.caption("Dates like Sep 19 are preserved in order_date_text. Confirm a year below to fill missing full dates, or edit order_date as YYYY-MM-DD. For histories spanning multiple years, edit dates individually.")
+                st.dataframe(_order_summary(extraction),hide_index=True,width="stretch")
+                st.caption("Dates like Sep 19 are preserved for review. Confirm a year below to fill missing full dates; dates that remain unknown are still saved.")
                 apply_year=st.checkbox("Apply a confirmed year to dates that show only month and day",key="apply_year_"+key)
                 year=None
                 if apply_year:
                     year=st.number_input("Year for missing-year dates in this screenshot",min_value=2000,max_value=2100,value=datetime.now(ZoneInfo("America/New_York")).year,step=1,key="date_year_"+key)
                     try:
-                        preview=resolve_missing_years(Extraction.model_validate_json(edited),int(year))
+                        preview=resolve_missing_years(extraction,int(year))
                         st.write([{ "Visible date":o.order_date_text, "Date to save":o.order_date.isoformat() if o.order_date else "Unknown" } for o in preview.orders])
                     except ValueError as exc:
                         st.info(f"We couldn't preview the dates yet: {exc}")
-                checked=st.checkbox("I checked these orders and removed duplicates",key="confirm_"+key)
+                checked=st.checkbox("I checked these extracted orders",key="confirm_"+key)
                 if st.button("Save confirmed orders",disabled=not checked,key="save_"+key):
                     try:
-                        reviewed=Extraction.model_validate_json(edited)
-                        if apply_year:
-                            reviewed=resolve_missing_years(reviewed,int(year))
+                        reviewed=resolve_missing_years(extraction,int(year)) if apply_year else extraction
                         if any(o.order_date is None for o in reviewed.orders):
                             st.info("Some dates are still unknown. Those orders will be saved, but they will not contribute to weekday insights.")
                         save(st.session_state.session_id,identifier,uri,reviewed)
-                        st.success("Saved to BigQuery.")
                         st.session_state.refresh_receipts=True
                     except Exception:
-                        st.info("We couldn't save these orders yet. Check the extracted details and try again.")
+                        st.info("We couldn't save these orders yet. Please try again.")
     if st.button("Refresh my summaries", use_container_width=True): st.session_state.refresh_receipts=True
     if st.session_state.pop("refresh_receipts",False):
         try: st.session_state.saved_orders=read_orders(st.session_state.session_id)

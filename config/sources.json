@@ -316,6 +316,116 @@
       "html_only_tested": false,
       "html_only_matches_js": false,
       "restaurant_id": "subway-4-main-amherst"
+    },
+  {
+      "id": "playa_bowls_doordash",
+      "provider": "doordash",
+      "enabled": true,
+      "expected_heading": "Playa Bowls",
+      "url": "https://www.doordash.com/store/playa-bowls-amherst-24831682/",
+      "store_id": "24831682",
+      "html_only_tested": false,
+      "html_only_matches_js": false,
+      "restaurant_id": "playa-bowls-amherst"
+    },
+    {
+      "id": "playa_bowls_ubereats",
+      "provider": "ubereats",
+      "enabled": true,
+      "expected_heading": "Playa Bowls (65 University Dr)",
+      "url": "https://www.ubereats.com/store/playa-bowls-65-university-dr/57ZIy1WjUrCQcBjn5AGWbw?diningMode=DELIVERY",
+      "store_id": "e7b648cb-55a3-52b0-9070-18e7e401966f",
+      "html_only_tested": false,
+      "html_only_matches_js": false,
+      "restaurant_id": "playa-bowls-amherst"
+    },
+    {
+      "id": "panera_hadley_doordash",
+      "provider": "doordash",
+      "enabled": true,
+      "expected_heading": "Panera Bread",
+      "url": "https://www.doordash.com/store/panera-bread-hadley-hadley-24311094/",
+      "store_id": "24311094",
+      "html_only_tested": false,
+      "html_only_matches_js": false,
+      "restaurant_id": "panera-hadley"
+    },
+    {
+      "id": "panera_hadley_ubereats",
+      "provider": "ubereats",
+      "enabled": true,
+      "expected_heading": "Panera (351 Russell Street, 351B)",
+      "url": "https://www.ubereats.com/store/panera-351-russell-street-351b/WK6NrG4eT_-VlL_4jWqAIQ?diningMode=DELIVERY",
+      "store_id": "58ae8d1c-6e1e-4ff7-9594-bfe88d6a8021",
+      "html_only_tested": false,
+      "html_only_matches_js": false,
+      "restaurant_id": "panera-hadley"
+    },
+    {
+      "id": "five_guys_hadley_doordash",
+      "provider": "doordash",
+      "enabled": true,
+      "expected_heading": "Five Guys Burgers & Fries",
+      "url": "https://www.doordash.com/store/five-guys-burgers-&-fries-hadley-970045/",
+      "store_id": "970045",
+      "html_only_tested": false,
+      "html_only_matches_js": false,
+      "restaurant_id": "five-guys-hadley"
+    },
+    {
+      "id": "five_guys_hadley_ubereats",
+      "provider": "ubereats",
+      "enabled": true,
+      "expected_heading": "Five Guys (335 Russell St Bldg B Ste B1)",
+      "url": "https://www.ubereats.com/store/five-guys-335-russell-st-bldg-b-ste-b1-ma-1927/vATvSR51T8ivheGtFOMfAw?diningMode=DELIVERY",
+      "store_id": "bc04ef49-1e75-4fc8-af85-e1ad14e31f03",
+      "html_only_tested": false,
+      "html_only_matches_js": false,
+      "restaurant_id": "five-guys-hadley"
+    },
+    {
+      "id": "starbucks_hadley_doordash",
+      "provider": "doordash",
+      "enabled": true,
+      "expected_heading": "Starbucks",
+      "url": "https://www.doordash.com/store/starbucks-hadley-33968920/",
+      "store_id": "33968920",
+      "html_only_tested": false,
+      "html_only_matches_js": false,
+      "restaurant_id": "starbucks-hadley"
+    },
+    {
+      "id": "starbucks_hadley_ubereats",
+      "provider": "ubereats",
+      "enabled": true,
+      "expected_heading": "Starbucks (344 Russell St Route 9)",
+      "url": "https://www.ubereats.com/store/starbucks-344-russell-st-route-9/cD3B4_2WRJS1zE1uwR7zIA?diningMode=DELIVERY",
+      "store_id": "703dc1e3-fd96-4494-b5cc-4d6ec11ef320",
+      "html_only_tested": false,
+      "html_only_matches_js": false,
+      "restaurant_id": "starbucks-hadley"
+    },
+    {
+      "id": "dunkin_amherst_doordash",
+      "provider": "doordash",
+      "enabled": true,
+      "expected_heading": "Dunkin'",
+      "url": "https://www.doordash.com/store/dunkin-amherst-23038899/",
+      "store_id": "23038899",
+      "html_only_tested": false,
+      "html_only_matches_js": false,
+      "restaurant_id": "dunkin-175-university-amherst"
+    },
+    {
+      "id": "dunkin_amherst_ubereats",
+      "provider": "ubereats",
+      "enabled": true,
+      "expected_heading": "Dunkin' (175 University Dr)",
+      "url": "https://www.ubereats.com/store/dunkin-175-university-dr/PvHcudPjQ4SiQqNDVXo2NQ?diningMode=DELIVERY",
+      "store_id": "3ef1dcb9-d3e3-4384-a242-a343557a3635",
+      "html_only_tested": false,
+      "html_only_matches_js": false,
+      "restaurant_id": "dunkin-175-university-amherst"
     }
   ]
 }
