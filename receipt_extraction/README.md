@@ -5,7 +5,11 @@ From the project root in PowerShell:
 .\.venv\Scripts\python.exe -m receipt_extraction.repository
 .\.venv\Scripts\python.exe -m streamlit run frontend/app.py --server.address localhost
 ```
-The setup command creates the separate receipts dataset and two tables. Local AWS delivery-dev and Google ADC credentials must work. Set GEMINI_API_KEY (or GOOGLE_API_KEY) in .env; optional GEMINI_MODEL overrides gemini-3.8-flash. Never commit credentials.
+The setup command creates the separate receipts dataset and two tables. Local
+AWS delivery-dev and Google ADC credentials must work. Set GEMINI_API_KEY (or
+GOOGLE_API_KEY) in `.env`, or add the same names to Streamlit Secrets for a
+hosted deployment. Optional GEMINI_MODEL overrides the default
+`gemini-2.5-flash`. Never commit credentials.
 
 Files: images.py validates/converts still PNG/JPEG/WebP/HEIC/HEIF/BMP/TIFF/GIF; gemini_client.py calls the model; schemas.py validates output; pipeline.py uploads, extracts and removes exact duplicate orders; repository.py saves confirmed data; analytics.py queries current-session summaries. frontend/app.py provides upload, summary review and save. shared/storage.py and shared/bigquery.py hold cloud connections.
 

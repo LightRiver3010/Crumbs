@@ -59,8 +59,9 @@ with DAG(
     dag_id="delivery_menu_ingestion",
     description="Fetch verified menus, persist immutable S3 snapshots, and publish validated BigQuery observations.",
     start_date=datetime(2026, 1, 1),
-    schedule=os.environ.get("MENU_INGESTION_SCHEDULE", "0 * * * *"),
+    schedule=os.environ.get("MENU_INGESTION_SCHEDULE") or "0 * * * *",
     catchup=False,
+    is_paused_upon_creation=False,
     max_active_runs=1,
     dagrun_timeout=timedelta(minutes=45),
     default_args={

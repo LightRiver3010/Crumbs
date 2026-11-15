@@ -8,4 +8,19 @@ DEFAULTS = json.loads((ROOT / "config/sources.json").read_text())["defaults"]
 PROJECT = DEFAULTS["project"]
 BUCKET = DEFAULTS["bucket"]
 LOCATION = DEFAULTS["location"]
-MODEL = os.getenv("GEMINI_MODEL", "gemini-3.8-flash")
+
+
+def secret(name):
+    """Read a deployment secret from environment variables or Streamlit secrets."""
+    value = os.getenv(name)
+    if value:
+        return value
+    try:
+        import streamlit as st
+        value = st.secrets.get(name)
+    except (FileNotFoundError, KeyError):
+        value = None
+    return str(value) if value else None
+
+
+MODEL = secret("GEMINI_MODEL") or "gemini-2.5-flash"

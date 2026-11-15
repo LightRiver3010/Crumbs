@@ -1,15 +1,19 @@
 """Multi-image receipt review and personal savings MVP."""
 import hashlib
+import logging
 import uuid
 from datetime import datetime
 from zoneinfo import ZoneInfo
 from receipt_extraction.dates import resolve_missing_years
+from receipt_extraction.gemini_client import extraction_error_message
 import streamlit as st
 from receipt_extraction.pipeline import prepare
 from receipt_extraction.schemas import Extraction
 from receipt_extraction.repository import save,read_orders
 from frontend.receipt_savings import render as render_insights
 from frontend.theme import section_header
+
+logger = logging.getLogger(__name__)
 
 
 def remember_uploads():
@@ -60,8 +64,9 @@ def render():
                 try:
                     with st.spinner("Reading "+upload.name+"..."):
                         st.session_state.receipt_drafts[key]=prepare(upload.getvalue(),st.session_state.session_id)
-                except Exception:
-                    _show_extraction_status(upload.name, "Try a clear, uncropped receipt image and upload it again.")
+                except Exception as exc:
+                    logger.exception("Receipt preparation failed for uploaded file %s", upload.name)
+                    _show_extraction_status(upload.name, extraction_error_message(exc))
         for key,upload in selected.items():
             if key not in st.session_state.receipt_drafts: continue
             identifier,uri,extraction=st.session_state.receipt_drafts[key]

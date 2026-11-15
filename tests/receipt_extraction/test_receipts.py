@@ -32,6 +32,18 @@ class ReceiptTests(unittest.TestCase):
         self.assertIn("prepayment credits are depleted", message)
         self.assertIn("billing", message)
 
+    def test_missing_credentials_message(self):
+        message = gemini_client.extraction_error_message(
+            ValueError("Gemini credentials are not configured for this deployment.")
+        )
+        self.assertIn("Gemini service is not configured", message)
+
+    def test_empty_extraction_message(self):
+        message = gemini_client.extraction_error_message(
+            ValueError("Gemini returned no extraction. Try a clearer screenshot.")
+        )
+        self.assertIn("clear, uncropped receipt screenshot", message)
+
     def test_unavailable_model_message(self):
         error = Exception()
         error.code = 404

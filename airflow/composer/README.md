@@ -7,10 +7,12 @@ executes.
 
 ## 1. Create or select a Composer environment
 
-Use a Composer environment in the same broad US region as the BigQuery dataset.
+Use a Composer environment in `europe-west1` for the `hackumass26` project.
 Composer's service account needs permission to run BigQuery jobs, access the
-configured BigQuery datasets, read/write the S3 bucket through AWS credentials,
-and read the required Secret Manager secrets.
+configured BigQuery datasets, read/write the configured S3 bucket through AWS
+credentials, and read the required Secret Manager secrets. The S3 region and
+BigQuery dataset location are separate settings and should not be changed by
+this Composer-region update.
 
 ## 2. Install Composer dependencies
 
@@ -19,7 +21,7 @@ in `requirements.txt`:
 
 ```powershell
 gcloud composer environments update hackumass26-composer `
-  --location us-east1 `
+  --location europe-west1 `
   --update-pypi-packages-from-file airflow/composer/requirements.txt
 ```
 
@@ -35,7 +37,7 @@ Upload the staged `dags/` contents to the Composer DAG bucket:
 
 ```powershell
 $DAG_PREFIX = gcloud composer environments describe hackumass26-composer `
-  --location us-east1 `
+  --location europe-west1 `
   --format="value(config.dagGcsPrefix)"
 gcloud storage cp -r .\composer-bundle\dags\* "$DAG_PREFIX/"
 ```
@@ -59,7 +61,7 @@ Set these non-secret environment variables on the Composer environment:
 
 ```powershell
 gcloud composer environments update hackumass26-composer `
-  --location us-east1 `
+  --location europe-west1 `
   --update-env-variables="DELIVERY_PROJECT_ROOT=/home/airflow/gcs/dags/project,AWS_USE_DEFAULT_CREDENTIALS=true,DELIVERY_ARTIFACTS_ROOT=/tmp/delivery-artifacts"
 ```
 
@@ -87,9 +89,20 @@ minute zero in the Airflow timezone. Set
 
 ```powershell
 gcloud composer environments run hackumass26-composer `
-  --location us-east1 dags list
+  --location europe-west1 dags list
 ```
 
-Enable `delivery_menu_ingestion` in the Airflow UI, trigger one manual run,
-and inspect each source task before relying on the hourly schedule. The DAG
-runs one task per enabled source, then runs dbt after all source tasks finish.
+The environment must exist in the Google project and region used by the
+commands above. A live Airflow web UI alone is insufficient; the scheduler
+must also be running. Confirm the DAG is unpaused and inspect its next run:
+
+```powershell
+gcloud composer environments run hackumass26-composer `
+  --location europe-west1 dags unpause -- delivery_menu_ingestion
+gcloud composer environments run hackumass26-composer `
+  --location europe-west1 dags list
+```
+
+Trigger one manual run and inspect each source task before relying on the
+hourly schedule. The DAG runs one task per enabled source, then runs dbt after
+all source tasks finish.

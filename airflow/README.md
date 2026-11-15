@@ -11,6 +11,19 @@ The DAG runs hourly for the demo:
 source tasks (parallel) -> dbt build and test
 ```
 
+The DAG is configured to be unpaused when first discovered. Existing Airflow
+installations preserve the current pause state, so unpause it once after
+uploading or updating the DAG:
+
+```powershell
+gcloud composer environments run hackumass26-composer `
+  --location europe-west1 dags unpause -- delivery_menu_ingestion
+```
+
+An Airflow web server being reachable does not mean the scheduler is running
+or that this DAG is enabled. Confirm that the DAG has a recent scheduled run
+and that the scheduler is healthy before diagnosing ZenRows.
+
 For post-demo twice-daily operation, set
 `MENU_INGESTION_SCHEDULE=0 0,12 * * *` (UTC) in the Airflow worker
 environment.
