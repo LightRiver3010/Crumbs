@@ -12,7 +12,7 @@ def load_menus():
 
 
 def render():
-    section_header("SAVE SMARTER", "Compare menu prices", "See today’s saved menu prices side by side.")
+    section_header("SAVE A CRUMB", "Compare menu prices", "Find a small price win before you place your next order.")
     st.selectbox("Restaurant",["Primo Too - Amherst"],key="comparison_restaurant")
     matches=json.loads((ROOT/"config/item_matches.json").read_text())["items"]
     category=st.selectbox("Category",["All"]+sorted({m["category"] for m in matches}),key="comparison_category")

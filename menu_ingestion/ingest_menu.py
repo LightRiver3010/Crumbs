@@ -20,7 +20,8 @@ from dotenv import load_dotenv
 from google.cloud import bigquery
 import requests
 
-from shared.paths import ROOT
+from shared.aws import session
+from shared.paths import ARTIFACTS_ROOT, ROOT
 def manifest_store_id(manifest):
     # Read old immutable Uber Eats snapshots without requiring the legacy field in new config.
     return manifest.get("store_id", manifest.get("store_uuid"))
@@ -116,7 +117,7 @@ def merge_rows(client, project, location, name, rows, key):
 def run_source(cfg, args, run_id):
     """Run a single source. Return nonzero on failure so an orchestrator can retry."""
     parser_version = VERSIONS[cfg["provider"]]
-    folder = ROOT / "artifacts" / run_id
+    folder = ARTIFACTS_ROOT / run_id
     folder.mkdir(parents=True, exist_ok=True)
     prefix = f"raw/menus/{cfg['provider']}/{cfg['id']}/{run_id}"
     raw_key, manifest_key = f"{prefix}/response.html", f"{prefix}/manifest.json"
@@ -126,8 +127,8 @@ def run_source(cfg, args, run_id):
         if sum(bool(x) for x in (args.fetch_only, args.replay, args.resume_local)) > 1:
             raise ValueError("Choose only one of --fetch-only, --replay, --resume-local.")
         if not args.fetch_only:
-            session = boto3.Session(profile_name=cfg.get("profile"), region_name=cfg["region"])
-            s3 = session.client("s3", config=Config(
+            aws_session = session(cfg["region"], cfg.get("profile"))
+            s3 = aws_session.client("s3", config=Config(
                 connect_timeout=10, read_timeout=30,
                 retries={"total_max_attempts": 3, "mode": "standard"}))
             s3.head_bucket(Bucket=cfg["bucket"])
@@ -212,6 +213,8 @@ def run_source(cfg, args, run_id):
         if manifest_store_id(manifest) != cfg["store_id"] or manifest.get("source_id", cfg["id"]) != cfg["id"]:
             raise ValueError("Snapshot belongs to a different source.")
         items, rejects, card_count = extract_snapshot(html_bytes, manifest, cfg)
+        if not items:
+            raise ValueError("No menu items were extracted; refusing to publish an empty snapshot.")
         rows = [{
             "observation_id": hashlib.sha256(f'{run_id}|{x["source_item_id"]}'.encode()).hexdigest(),
             "run_id": run_id, "branch_id": manifest_store_id(manifest), "provider": cfg["provider"],
@@ -352,7 +355,7 @@ def run_batch(sources, args, runner=run_source):
             code = 1
         results.append({"source_id": source["id"], "run_id": run_id, "status": "success" if code == 0 else "failed"})
     summary = {"batch_id": batch_id, "sources": results}
-    folder = ROOT / "artifacts" / "batches"
+    folder = ARTIFACTS_ROOT / "batches"
     folder.mkdir(parents=True, exist_ok=True)
     summary_path = folder / (hashlib.sha256(batch_id.encode()).hexdigest() + ".json")
     summary_path.write_text(json.dumps(summary, indent=2), encoding="utf-8")

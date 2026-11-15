@@ -11,7 +11,8 @@ def parse_rendered(html, store_id, expected_heading=None):
     """Only accept unambiguous visible card prices, never ratings or modifiers."""
     if not isinstance(store_id, str) or not store_id.strip():
         raise ValueError("store_id must be a nonempty string.")
-    soup = BeautifulSoup(html, "html.parser")
+    text = html.decode("utf-8") if isinstance(html, bytes) else html
+    soup = BeautifulSoup(text, "html.parser")
     heading = soup.find("h1")
     if not heading or not heading.get_text(" ", strip=True):
         raise ValueError("Restaurant heading missing; possible error or block page.")
@@ -37,18 +38,21 @@ def parse_rendered(html, store_id, expected_heading=None):
             texts = [s.get_text(" ", strip=True) for s in card.select('[data-testid="rich-text"]')]
             prices = [PRICE.fullmatch(t) for t in texts]
             prices = [p for p in prices if p]
+            if texts and texts[0] and not prices and "Priced by add-ons" in texts[1:]:
+                rejects.append({"item_id": item_id, "reason": "Priced by add-ons; no standalone displayed price", "severity": "excluded"})
+                continue
             if not texts or not texts[0] or PRICE.fullmatch(texts[0]) or len(prices) != 1:
                 raise ValueError("Missing or ambiguous name/price; requires manual review.")
             cents = int(Decimal(prices[0].group(1).replace(",", "")) * 100)
-            if not 0 < cents < 2**63:
-                raise ValueError("Invalid positive INT64 price.")
+            if not 0 <= cents < 2**63:
+                raise ValueError("Invalid nonnegative INT64 price.")
             category_heading = card.find_previous("h3")
             item = {
                 "source_item_id": item_id, "item_name": texts[0],
                 "price_cents": cents,
                 "category": category_heading.get_text(" ", strip=True) if category_heading else None,
             }
-            if item_id in items and items[item_id] != item:
+            if item_id in items and any(items[item_id][k] != item[k] for k in ("item_name", "price_cents")):
                 conflicts.add(item_id)
                 raise ValueError("Conflicting duplicate item ID.")
             items[item_id] = item

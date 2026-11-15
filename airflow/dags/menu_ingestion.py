@@ -74,6 +74,8 @@ with DAG(
             "dbt build "
             "--project-dir {{ params.dbt_dir }} "
             "--profiles-dir {{ params.dbt_dir }} "
+            "--target-path /tmp/delivery-dbt-target "
+            "--log-path /tmp/delivery-dbt-logs "
             "--target production"
         ),
         params={"dbt_dir": str(PROJECT_ROOT / "dbt")},
@@ -81,6 +83,8 @@ with DAG(
         env={
             "DBT_PROFILES_DIR": str(PROJECT_ROOT / "dbt"),
             "DBT_PROJECT_DIR": str(PROJECT_ROOT / "dbt"),
+            "AWS_USE_DEFAULT_CREDENTIALS": "true",
+            "DELIVERY_ARTIFACTS_ROOT": "/tmp/delivery-artifacts",
         },
     )
 

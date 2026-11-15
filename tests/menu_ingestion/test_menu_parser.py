@@ -27,6 +27,28 @@ class ParserTests(unittest.TestCase):
         rows, rejects, count = parse_menu(page(card() + card()), STORE)
         self.assertEqual(len(rows), 1)
         self.assertEqual(count, 2)
+    def test_duplicate_in_different_categories_is_not_price_conflict(self):
+        rows, rejects, count = parse_menu(page(card() + '<h3>Popular</h3>' + card()), STORE)
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rejects, [])
+
+    def test_rendered_utf8_heading_and_item_names(self):
+        html = page(card()).replace("Primo too Amherst", "McDonald's®").replace("Roast Beef", "Café")
+        rows, rejects, _ = parse_menu(html.encode("utf-8"), STORE, "McDonald's®")
+        self.assertEqual(rows[0]["item_name"], "Café")
+        self.assertEqual(rejects, [])
+    def test_explicit_zero_price_is_retained(self):
+        rows, rejects, _ = parse_menu(page(card("$0.00")), STORE)
+        self.assertEqual(rows[0]["price_cents"], 0)
+        self.assertEqual(rejects, [])
+
+    def test_add_on_priced_item_is_excluded_without_guessing_price(self):
+        extra = card("Priced by add-ons").replace(ITEM, "11111111-1111-4111-8111-111111111111")
+        rows, rejects, _ = parse_menu(page(card() + extra), STORE)
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rejects[0]["severity"], "excluded")
+        with self.assertRaises(ValueError):
+            parse_menu(page(extra), STORE)
     def test_ambiguous_sale_price_not_silently_selected(self):
         with self.assertRaises(ValueError):
             parse_menu(page(card(extra='<span data-testid="rich-text">$12.99</span>')), STORE)

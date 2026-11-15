@@ -6,7 +6,6 @@ from zoneinfo import ZoneInfo
 from receipt_extraction.dates import resolve_missing_years
 import streamlit as st
 from receipt_extraction.pipeline import prepare
-from receipt_extraction.gemini_client import extraction_error_message
 from receipt_extraction.schemas import Extraction
 from receipt_extraction.repository import save,read_orders
 from frontend.receipt_savings import render as render_insights
@@ -18,8 +17,12 @@ def remember_uploads():
     st.session_state.receipt_uploads=list(st.session_state.get("receipt_upload_widget",[]))
 
 
+def _show_extraction_status(upload_name, message):
+    st.info(f"We couldn't finish reading {upload_name}. {message}")
+
+
 def render():
-    section_header("KNOW YOUR HABITS", "Your delivery orders", "Upload a few receipts to see where your money is going.")
+    section_header("COLLECT YOUR CRUMBS", "Your delivery orders", "Upload a few receipts to spot the small habits that add up.")
     st.write("More screenshots = more accurate data")
     st.caption("Upload complete, non-overlapping order histories where possible. Images go to S3 and Gemini; confirmed orders go to BigQuery.")
     st.session_state.setdefault("session_id",str(uuid.uuid4()))
@@ -28,7 +31,15 @@ def render():
     uploads=st.session_state.get("receipt_uploads",[])
     if uploads:
         st.caption("Selected screenshots: "+", ".join(u.name for u in uploads))
-    habit=st.radio("Do these screenshots reflect your normal ordering habits?",["Yes","Usually more","Usually less"],index=None,help="Usually more/less means you normally order more/less often than shown here.",key="ordering_habit") if uploads or st.session_state.get("saved_orders") else None
+    if uploads or st.session_state.get("saved_orders"):
+        habit_args={"options": ["Yes", "Usually more", "Usually less"],
+                    "help": "Usually more/less means you normally order more/less often than shown here.",
+                    "key": "ordering_habit"}
+        if "ordering_habit" not in st.session_state:
+            habit_args["index"]=None
+        habit=st.radio("Do these screenshots reflect your normal ordering habits?",**habit_args)
+    else:
+        habit=None
     if uploads:
         selected={hashlib.sha256(u.getvalue()).hexdigest():u for u in uploads}
         if st.button("Extract orders", disabled=habit is None, use_container_width=True, type="primary"):
@@ -37,12 +48,16 @@ def render():
                 try:
                     with st.spinner("Reading "+upload.name+"..."):
                         st.session_state.receipt_drafts[key]=prepare(upload.getvalue(),st.session_state.session_id)
-                except Exception as exc: st.error(extraction_error_message(exc))
+                except Exception:
+                    _show_extraction_status(upload.name, "Try a clear, uncropped receipt image and upload it again.")
         for key,upload in selected.items():
             if key not in st.session_state.receipt_drafts: continue
             identifier,uri,extraction=st.session_state.receipt_drafts[key]
             with st.expander("Review: "+upload.name,expanded=True):
-                for warning in extraction.warnings: st.warning(warning)
+                if extraction.warnings:
+                    with st.expander("Details to review"):
+                        for warning in extraction.warnings:
+                            st.caption(warning)
                 st.caption("Edit JSON as needed. Amounts are cents. Remove duplicate orders from overlapping screenshots; retain exact item sizes and counts.")
                 edited=st.text_area("Extracted orders",extraction.model_dump_json(indent=2),height=280,key="review_"+key)
                 st.caption("Dates like Sep 19 are preserved in order_date_text. Confirm a year below to fill missing full dates, or edit order_date as YYYY-MM-DD. For histories spanning multiple years, edit dates individually.")
@@ -54,7 +69,7 @@ def render():
                         preview=resolve_missing_years(Extraction.model_validate_json(edited),int(year))
                         st.write([{ "Visible date":o.order_date_text, "Date to save":o.order_date.isoformat() if o.order_date else "Unknown" } for o in preview.orders])
                     except ValueError as exc:
-                        st.warning(str(exc))
+                        st.info(f"We couldn't preview the dates yet: {exc}")
                 checked=st.checkbox("I checked these orders and removed duplicates",key="confirm_"+key)
                 if st.button("Save confirmed orders",disabled=not checked,key="save_"+key):
                     try:
@@ -62,15 +77,16 @@ def render():
                         if apply_year:
                             reviewed=resolve_missing_years(reviewed,int(year))
                         if any(o.order_date is None for o in reviewed.orders):
-                            st.warning("Some dates remain unknown; those orders will not contribute to weekday insights.")
+                            st.info("Some dates are still unknown. Those orders will be saved, but they will not contribute to weekday insights.")
                         save(st.session_state.session_id,identifier,uri,reviewed)
                         st.success("Saved to BigQuery.")
                         st.session_state.refresh_receipts=True
-                    except Exception as exc: st.error(f"Save failed ({type(exc).__name__}). Check the edited JSON and cloud access.")
+                    except Exception:
+                        st.info("We couldn't save these orders yet. Check the extracted details and try again.")
     if st.button("Refresh my summaries", use_container_width=True): st.session_state.refresh_receipts=True
     if st.session_state.pop("refresh_receipts",False):
         try: st.session_state.saved_orders=read_orders(st.session_state.session_id)
-        except Exception: st.error("Could not refresh saved orders. Check BigQuery access.")
+        except Exception: st.info("Your saved summaries are temporarily unavailable. Please try refreshing again.")
     orders=st.session_state.get("saved_orders",[])
     if orders:
         if habit is None: st.info("Select whether these screenshots reflect your normal ordering habits to view insights.")

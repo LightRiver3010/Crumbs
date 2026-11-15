@@ -158,3 +158,23 @@ Tests use mocked HTTP calls and saved local data and do not spend ZenRows credit
 ## Package layout
 
 Run commands from the project root using Python modules: python -m menu_ingestion.ingest_menu. Provider adapters and orchestration are in menu_ingestion; comparison utilities are in menu_ingestion/tools. Receipt extraction and frontend packages are placeholders. Shared path configuration is in shared/paths.py. Tests mirror the application folders.
+
+
+## Restaurant catalog refresh (2026-11-15)
+
+The Home catalog now groups enabled sources by `restaurant_id`. Uber Eats
+`store_id` values are decoded UUIDs, not the URL's base64-encoded token. DoorDash
+store IDs come from the first store path segment, not the subsequent menu ID.
+The updated Chipotle and Hangar URLs are retained with their correct store IDs.
+
+The `ubereats-dual-v4` rendered parser decodes UTF-8 explicitly, tolerates an
+identical item appearing under multiple categories, preserves explicit $0.00
+prices, and excludes cards explicitly marked "Priced by add-ons". It still
+rejects conflicting prices, unknown store IDs, ambiguous prices and empty menus.
+Restaurant headings were checked against fetched HTML before uploading snapshots.
+
+The refresh used one ZenRows fetch per enabled listing, with local snapshot
+resume and S3 replay for parser corrections. The final per-source warehouse and
+restaurant UI verification is recorded in `artifacts/home-menu-verification.json`.
+Successful snapshots remain partial-coverage observations; this does not claim
+that every possible customization or checkout-available item was collected.
