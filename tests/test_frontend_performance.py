@@ -2,13 +2,13 @@ import unittest
 from unittest.mock import patch
 from datetime import date
 from streamlit.testing.v1 import AppTest
-from frontend.comparison import load_menus
+from frontend.landing import load_catalog
 from shared.paths import ROOT
 
 class PerformanceTests(unittest.TestCase):
     def test_tabs_cache_and_retained_controls(self):
-        load_menus.clear()
-        with patch("frontend.comparison.get_latest_menus",return_value={}) as menu, patch("frontend.receipts.prepare") as extract:
+        load_catalog.clear()
+        with patch("frontend.landing.get_catalog",return_value={}) as menu, patch("frontend.receipts.prepare") as extract:
             app=AppTest.from_file(str(ROOT/"frontend/app.py"))
             app.session_state["active_tab"]="Receipt insights"
             app.session_state["saved_orders"]=[{"order_id":"x","restaurant":"Cafe","currency":"USD","total_cents":1500,"order_date":date(2026,11,10),"items":[]}]
@@ -23,11 +23,11 @@ class PerformanceTests(unittest.TestCase):
             app.slider[0].set_value(1).run()
             self.assertFalse(app.exception)
             menu.assert_not_called();extract.assert_not_called()
-            app.session_state["active_tab"]="Compare prices";app.run()
+            app.session_state["active_tab"]="Home";app.run()
             self.assertFalse(app.exception)
             self.assertEqual(menu.call_count,1)
             app.run();self.assertEqual(menu.call_count,1)
-            next(b for b in app.button if b.label=="Refresh saved prices").click().run()
+            next(b for b in app.button if b.label=="Refresh saved menus").click().run()
             self.assertEqual(menu.call_count,2)
             app.session_state["active_tab"]="Receipt insights";app.run()
             self.assertFalse(app.exception)
@@ -35,6 +35,6 @@ class PerformanceTests(unittest.TestCase):
             self.assertEqual(app.session_state["meal_plan"],"Yes")
             self.assertEqual(app.session_state["review_fixture"],"unsaved edit")
             self.assertEqual(menu.call_count,2)
-        load_menus.clear()
+        load_catalog.clear()
 
 if __name__=="__main__": unittest.main()

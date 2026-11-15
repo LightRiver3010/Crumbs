@@ -4,7 +4,7 @@ CONTROL_KEYS={"ordering_habit","insight_orders","delivery_meals","meal_swaps",
               "meal_plan","period_start","period_end","period_confirmed","usual_weekly",
               "comparison_restaurant","comparison_category","comparison_meal",
               "landing_source","landing_search","landing_restaurant",
-              "landing_category","landing_comparable"}
+              "landing_category","landing_comparable","landing_meal"}
 PREFIXES=("review_","confirm_","apply_year_","date_year_","branch_","platform_","match_","qty_")
 
 def preserve_controls(savings_only=False):

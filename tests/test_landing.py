@@ -54,8 +54,8 @@ class LandingTests(unittest.TestCase):
         with patch("frontend.landing.get_catalog", side_effect=RuntimeError("secret")):
             app = AppTest.from_file(str(ROOT / "frontend/app.py")).run(timeout=30)
         self.assertFalse(app.exception)
-        self.assertIn("Google Cloud access", app.error[0].value)
-        self.assertNotIn("secret", app.error[0].value)
+        self.assertIn("temporarily unavailable", app.info[0].value)
+        self.assertNotIn("secret", app.info[0].value)
 
     def test_item_comparison_colors_and_unverified_items(self):
         sources = configured_sources()

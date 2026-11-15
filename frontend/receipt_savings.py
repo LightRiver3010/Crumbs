@@ -1,11 +1,10 @@
 """User-controlled receipt facts and two savings routes."""
 from datetime import date
-import json
 import streamlit as st
 from receipt_extraction.insights import facts,project_spending,eligible_meals,dining_savings
-from shared.paths import ROOT
-from frontend.comparison import load_menus
-from menu_comparison.compare import comparison_rows,render_table,timestamp_label,last_scraped
+from frontend.landing import load_catalog
+from menu_comparison.catalog import configured_sources
+from menu_comparison.restaurant import restaurants,restaurant_items,restaurant_label,table_rows
 from frontend.theme import section_header
 
 
@@ -19,36 +18,65 @@ def label(o):
 def keep_same(orders):
     st.write("Compare the same meals across today's available platforms.")
     st.caption("Assumes today's menu prices were unchanged when you ordered. Estimates cover matched menu items only, excluding fees, taxes, tips, promotions and paid customizations.")
+    sources=configured_sources()
     try:
-        menus=load_menus()
+        menus=load_catalog(sources)
     except Exception:
         st.info("Current comparison prices are temporarily unavailable. Try again later.")
         return
-    matches=json.loads((ROOT/"config/item_matches.json").read_text())["items"]
-    stamp=last_scraped(menus)
-    if stamp: st.caption("Menu prices last scraped: "+timestamp_label(stamp)+" (oldest source).")
-    st.caption("Currently supports the nine reviewed Primo Too, Amherst items. Confirm the restaurant branch and exact size/count; unsupported items are not counted as zero savings.")
+    grouped=restaurants(sources)
+    restaurant_keys=list(grouped)
+    if not restaurant_keys:
+        st.info("No restaurant menus are available for comparison yet.")
+        return
     total=matched=complete=0
     total_lines=sum(len(o.get("items",[])) for o in orders)
     for order in orders:
         items=order.get("items",[])
         if not items: continue
         with st.expander(label(order)):
-            correct=st.checkbox("This order is from Primo Too in Amherst",key="branch_"+order["order_id"])
-            if not correct: continue
+            extracted_restaurant=(order.get("restaurant") or "").casefold()
+            default_restaurant=next(
+                (key for key in restaurant_keys
+                 if restaurant_label(grouped[key]).casefold() in extracted_restaurant
+                 or extracted_restaurant in restaurant_label(grouped[key]).casefold()),
+                restaurant_keys[0],
+            )
+            restaurant=st.selectbox(
+                "Restaurant for this order",
+                restaurant_keys,
+                index=restaurant_keys.index(default_restaurant),
+                format_func=lambda key: restaurant_label(grouped[key]),
+                key="restaurant_"+order["order_id"],
+            )
+            menu_items=restaurant_items(grouped[restaurant],menus)
+            if not menu_items:
+                st.info("No saved menu items are available for this restaurant yet.")
+                continue
             provider=st.selectbox("Platform used for this order",["Select platform","ubereats","doordash"],key="platform_"+order["order_id"])
             if provider=="Select platform": continue
             matched_order=0
             for i,item in enumerate(items):
                 key=f"{order['order_id']}_{i}"
-                choice=st.selectbox(f"Match: {item['name']} (exact size/count)",[None]+list(range(len(matches))),format_func=lambda v:"Not matched" if v is None else matches[v]["name"],key="match_"+key)
-                if choice is None: continue
+                exact=[menu_item for menu_item in menu_items
+                       if menu_item["name"].casefold()==(item.get("name") or "").strip().casefold()]
+                choices=exact or menu_items
+                def choice_label(menu_item):
+                    return menu_item["name"] if menu_item["comparable"] else f"{menu_item['name']} — comparison unavailable"
+                choice=st.selectbox(
+                    f"Match: {item.get('name') or 'Unnamed item'} (exact size/count)",
+                    choices,
+                    format_func=choice_label,
+                    key="match_"+key,
+                )
                 quantity=st.number_input("Confirm quantity",min_value=1,max_value=100,value=item.get("quantity") or 1,key="qty_"+key)
-                rows=comparison_rows(matches[choice],menus)
-                st.html(render_table(matches[choice]["name"],rows))
-                if any(r["price_cents"] is None for r in rows): continue
-                source_price=rows[0 if provider=="ubereats" else 1]["price_cents"]
-                total+=(source_price-min(r["price_cents"] for r in rows))*quantity
+                if not choice["comparable"]:
+                    st.info("A side-by-side comparison is not available for this meal. Choose another saved item or restaurant.")
+                    continue
+                st.dataframe(table_rows([choice]),hide_index=True,width="stretch")
+                source_price=choice["entries"][provider]["price_cents"]
+                comparison_prices=[choice["entries"][platform]["price_cents"] for platform in ("ubereats","doordash")]
+                total+=(source_price-min(comparison_prices))*quantity
                 matched+=1;matched_order+=1
             if matched_order==len(items): complete+=1
     st.metric("Estimated savings on matched items",money(total))

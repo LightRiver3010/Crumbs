@@ -6,6 +6,7 @@ from pathlib import Path
 import subprocess
 
 from airflow import DAG
+from airflow.models import Variable
 from airflow.operators.bash import BashOperator
 from airflow.operators.python import PythonOperator
 
@@ -27,6 +28,17 @@ def run_source(source_id, **context):
     """Run one source with a stable batch identity so retries are idempotent."""
     dag_run = context["dag_run"]
     batch_id = dag_run.run_id
+    runtime_env = os.environ.copy()
+    for name in (
+        "ZENROWS_API_KEY",
+        "AWS_ACCESS_KEY_ID",
+        "AWS_SECRET_ACCESS_KEY",
+        "AWS_SESSION_TOKEN",
+    ):
+        if name not in runtime_env:
+            value = Variable.get(name, default_var=None)
+            if value:
+                runtime_env[name] = value
     subprocess.run(
         [
             os.environ.get("PYTHON_BIN", "python"),
@@ -39,6 +51,7 @@ def run_source(source_id, **context):
         ],
         cwd=PROJECT_ROOT,
         check=True,
+        env=runtime_env,
     )
 
 

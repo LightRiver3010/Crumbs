@@ -63,8 +63,19 @@ gcloud composer environments update hackumass26-composer `
   --update-env-variables="DELIVERY_PROJECT_ROOT=/home/airflow/gcs/dags/project,AWS_USE_DEFAULT_CREDENTIALS=true,DELIVERY_ARTIFACTS_ROOT=/tmp/delivery-artifacts"
 ```
 
-Configure `ZENROWS_API_KEY` and AWS credentials through the Composer
-environment's Secret Manager/Airflow secrets integration. Do not put secret
+Configure Secret Manager as the Airflow secrets backend, then create these
+secrets using the default Airflow Variable naming convention:
+
+```text
+airflow-variables-ZENROWS_API_KEY
+airflow-variables-AWS_ACCESS_KEY_ID
+airflow-variables-AWS_SECRET_ACCESS_KEY
+airflow-variables-AWS_SESSION_TOKEN       # optional
+```
+
+Grant the Composer service account `roles/secretmanager.secretAccessor` on
+these secrets. The DAG reads the corresponding Airflow Variables at task
+runtime and passes them only to the ingestion subprocess. Do not put secret
 values in this file, in the DAG, or in a shell command. Google ADC for
 BigQuery/dbt comes from the Composer environment service account.
 
