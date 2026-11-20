@@ -4,6 +4,7 @@ import json
 import os
 from pathlib import Path
 import subprocess
+import sys
 
 from airflow import DAG
 from airflow.models import Variable
@@ -11,7 +12,7 @@ from airflow.operators.bash import BashOperator
 from airflow.operators.python import PythonOperator
 
 
-PROJECT_ROOT = Path(os.environ.get("DELIVERY_PROJECT_ROOT", "/opt/hackumass26"))
+PROJECT_ROOT = Path(os.environ.get("DELIVERY_PROJECT_ROOT", str(Path(__file__).resolve().parent / "project")))
 CONFIG_PATH = PROJECT_ROOT / "config" / "sources.json"
 
 
@@ -29,6 +30,8 @@ def run_source(source_id, **context):
     dag_run = context["dag_run"]
     batch_id = dag_run.run_id
     runtime_env = os.environ.copy()
+    runtime_env["AWS_USE_DEFAULT_CREDENTIALS"] = "true"
+    runtime_env["DELIVERY_ARTIFACTS_ROOT"] = "/tmp/delivery-artifacts"
     for name in (
         "ZENROWS_API_KEY",
         "AWS_ACCESS_KEY_ID",
@@ -41,7 +44,7 @@ def run_source(source_id, **context):
                 runtime_env[name] = value
     subprocess.run(
         [
-            os.environ.get("PYTHON_BIN", "python"),
+            os.environ.get("PYTHON_BIN", sys.executable),
             "-m",
             "menu_ingestion.ingest_menu",
             "--source",
@@ -52,6 +55,7 @@ def run_source(source_id, **context):
         cwd=PROJECT_ROOT,
         check=True,
         env=runtime_env,
+        timeout=900,
     )
 
 
@@ -59,10 +63,11 @@ with DAG(
     dag_id="delivery_menu_ingestion",
     description="Fetch verified menus, persist immutable S3 snapshots, and publish validated BigQuery observations.",
     start_date=datetime(2026, 1, 1),
-    schedule=os.environ.get("MENU_INGESTION_SCHEDULE") or "0 * * * *",
+    schedule=os.environ.get("MENU_INGESTION_SCHEDULE") or "@daily",
     catchup=False,
-    is_paused_upon_creation=False,
+    is_paused_upon_creation=True,
     max_active_runs=1,
+    max_active_tasks=2,
     dagrun_timeout=timedelta(minutes=45),
     default_args={
         "owner": "delivery-platform",
@@ -79,6 +84,7 @@ with DAG(
                 task_id=f"ingest_{source_id.replace('-', '_')}",
                 python_callable=run_source,
                 op_kwargs={"source_id": source_id},
+                execution_timeout=timedelta(minutes=16),
             )
         )
 
@@ -102,4 +108,6 @@ with DAG(
         },
     )
 
+    if not source_tasks:
+        raise ValueError("No enabled menu sources; refusing an empty ingestion DAG.")
     source_tasks >> dbt_build

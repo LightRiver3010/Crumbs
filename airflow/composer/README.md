@@ -7,7 +7,7 @@ executes.
 
 ## 1. Create or select a Composer environment
 
-Use a Composer environment in `europe-west1` for the `hackumass26` project.
+Use a Composer environment in `us-east4` for the `hackumass26` project.
 Composer's service account needs permission to run BigQuery jobs, access the
 configured BigQuery datasets, read/write the configured S3 bucket through AWS
 credentials, and read the required Secret Manager secrets. The S3 region and
@@ -20,8 +20,8 @@ Composer already provides Airflow. Install only the additional packages listed
 in `requirements.txt`:
 
 ```powershell
-gcloud composer environments update hackumass26-composer `
-  --location europe-west1 `
+gcloud composer environments update crumbs2 `
+  --project hackumass26 --location us-east4 `
   --update-pypi-packages-from-file airflow/composer/requirements.txt
 ```
 
@@ -36,8 +36,8 @@ From the repository root:
 Upload the staged `dags/` contents to the Composer DAG bucket:
 
 ```powershell
-$DAG_PREFIX = gcloud composer environments describe hackumass26-composer `
-  --location europe-west1 `
+$DAG_PREFIX = gcloud composer environments describe crumbs2 `
+  --project hackumass26 --location us-east4 `
   --format="value(config.dagGcsPrefix)"
 gcloud storage cp -r .\composer-bundle\dags\* "$DAG_PREFIX/"
 ```
@@ -60,8 +60,8 @@ dags/
 Set these non-secret environment variables on the Composer environment:
 
 ```powershell
-gcloud composer environments update hackumass26-composer `
-  --location europe-west1 `
+gcloud composer environments update crumbs2 `
+  --project hackumass26 --location us-east4 `
   --update-env-variables="DELIVERY_PROJECT_ROOT=/home/airflow/gcs/dags/project,AWS_USE_DEFAULT_CREDENTIALS=true,DELIVERY_ARTIFACTS_ROOT=/tmp/delivery-artifacts"
 ```
 
@@ -88,8 +88,8 @@ minute zero in the Airflow timezone. Set
 ## 5. Verify the deployment
 
 ```powershell
-gcloud composer environments run hackumass26-composer `
-  --location europe-west1 dags list
+gcloud composer environments run crumbs2 `
+  --project hackumass26 --location us-east4 dags list
 ```
 
 The environment must exist in the Google project and region used by the
@@ -97,12 +97,32 @@ commands above. A live Airflow web UI alone is insufficient; the scheduler
 must also be running. Confirm the DAG is unpaused and inspect its next run:
 
 ```powershell
-gcloud composer environments run hackumass26-composer `
-  --location europe-west1 dags unpause -- delivery_menu_ingestion
-gcloud composer environments run hackumass26-composer `
-  --location europe-west1 dags list
+gcloud composer environments run crumbs2 `
+  --project hackumass26 --location us-east4 dags unpause -- delivery_menu_ingestion
+gcloud composer environments run crumbs2 `
+  --project hackumass26 --location us-east4 dags list
 ```
 
 Trigger one manual run and inspect each source task before relying on the
 hourly schedule. The DAG runs one task per enabled source, then runs dbt after
 all source tasks finish.
+
+## Deployment state and remaining setup (2026-11-18)
+
+- Actual environment: `crumbs2`, project `hackumass26`, region `us-east4`.
+- Application DAG: `delivery_menu_ingestion` (not `crumbs2`).
+- The previous hundreds of runs were only `airflow_monitoring` executing `echo test`.
+- The application bundle has been uploaded to `gs://us-east4-crumbs2-d5b9b70e-bucket/dags/`.
+- The DAG defaults to the sibling `project/` directory, uses the worker Python executable, forces the AWS default credential chain, and writes artifacts under `/tmp`.
+- It starts paused, limits active ingestion tasks to two, and retains the hourly schedule. There are 37 enabled sources; unpausing starts recurring paid ZenRows requests.
+- Composer dependency installation was submitted separately; verify its operation succeeds before triggering.
+
+### Credentials still required
+
+Composer cannot use the developer laptop's `delivery-dev` AWS login. Supply unattended AWS credentials through the configured secrets backend or Airflow Variables (`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, and `AWS_SESSION_TOKEN` only for temporary credentials). Temporary session credentials expire and need renewal; do not copy a short-lived laptop session as a permanent scheduling solution. Set `ZENROWS_API_KEY` through the same mechanism. Never upload `.env` or put values in the DAG or commands. Secret Manager-backed Variables are preferred; manually configured Airflow Variables are also supported by the DAG's runtime lookup.
+
+BigQuery/dbt use the Composer service account `vertex-express@hackumass26.iam.gserviceaccount.com`. Its warehouse access must be validated in a real task. No credential values were displayed or included in the deployment bundle.
+
+After dependencies and credentials are ready: verify no DAG import errors, trigger one manual run while paused, inspect per-source outcomes and `dbt_build_and_test`, verify S3 snapshots and warehouse rows, then unpause for hourly operation. A visible DAG alone is not proof of successful ingestion. Keep `airflow_monitoring.py` intact.
+
+Verification: Airflow REST API confirms `delivery_menu_ingestion` is active, paused, has no import errors, uses `0 * * * *`, and contains 38 tasks (37 sources plus dbt). All 42 ingestion regression tests passed, along with bundle syntax and missing-Streamlit checks. Dependency operation: `d81010e4-d4e7-4939-aa09-a8012c891024` (installation still running at handoff). No live scraper run has been triggered.

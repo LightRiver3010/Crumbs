@@ -11,13 +11,13 @@ The DAG runs hourly for the demo:
 source tasks (parallel) -> dbt build and test
 ```
 
-The DAG is configured to be unpaused when first discovered. Existing Airflow
+The DAG is paused when first discovered so dependencies and credentials can be verified before paid scraping starts. Existing Airflow
 installations preserve the current pause state, so unpause it once after
 uploading or updating the DAG:
 
 ```powershell
-gcloud composer environments run hackumass26-composer `
-  --location europe-west1 dags unpause -- delivery_menu_ingestion
+gcloud composer environments run crumbs2 `
+  --project hackumass26 --location us-east4 dags unpause -- delivery_menu_ingestion
 ```
 
 An Airflow web server being reachable does not mean the scheduler is running

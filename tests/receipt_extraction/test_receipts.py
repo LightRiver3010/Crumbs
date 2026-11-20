@@ -10,6 +10,45 @@ from receipt_extraction import pipeline, repository, gemini_client
 from frontend.receipt_savings import optimal_savings
 
 class ReceiptTests(unittest.TestCase):
+    @patch.object(pipeline, "extract_image")
+    @patch.object(pipeline, "upload_image")
+    @patch.object(pipeline, "normalize_image", return_value=b"png")
+    def test_storage_failure_does_not_call_gemini(self, normalize, upload, extract):
+        upload.side_effect = RuntimeError("private credential details")
+        with self.assertRaises(pipeline.ReceiptPreparationError) as caught:
+            pipeline.prepare(b"input", "session")
+        message = gemini_client.extraction_error_message(caught.exception)
+        self.assertIn("S3", message)
+        self.assertIn("Gemini was not called", message)
+        self.assertNotIn("private credential", message)
+        extract.assert_not_called()
+
+    @patch.object(pipeline, "upload_image")
+    def test_invalid_image_identifies_stage(self, upload):
+        with self.assertRaises(pipeline.ReceiptPreparationError) as caught:
+            pipeline.prepare(b"not an image", "session")
+        self.assertIn("image could not be processed", gemini_client.extraction_error_message(caught.exception))
+        upload.assert_not_called()
+
+    @patch.object(pipeline, "extract_image")
+    @patch.object(pipeline, "upload_image", return_value="s3://bucket/key")
+    @patch.object(pipeline, "normalize_image", return_value=b"png")
+    def test_wrapped_gemini_error_keeps_quota_message(self, normalize, upload, extract):
+        error = RuntimeError("private payload")
+        error.code = 429
+        extract.side_effect = error
+        with self.assertRaises(pipeline.ReceiptPreparationError) as caught:
+            pipeline.prepare(b"input", "session")
+        self.assertIn("quota", gemini_client.extraction_error_message(caught.exception))
+
+    def test_invalid_model_output_is_not_image_quality_error(self):
+        try:
+            Extraction.model_validate_json('{"orders":[{"total_cents":-1}]}')
+        except ValidationError as exc:
+            message = gemini_client.extraction_error_message(exc)
+        self.assertIn("failed validation", message)
+        self.assertNotIn("clearer screenshot", message)
+
     @patch.dict("os.environ", {"GEMINI_API_KEY": "test-placeholder"})
     @patch.object(gemini_client.genai, "Client")
     def test_gemini_response_validated(self, client):

@@ -18,7 +18,7 @@ def secret(name):
     try:
         import streamlit as st
         value = st.secrets.get(name)
-    except (FileNotFoundError, KeyError):
+    except (ImportError, FileNotFoundError, KeyError):
         value = None
     return str(value) if value else None
 

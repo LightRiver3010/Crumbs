@@ -1,6 +1,7 @@
 """Extract structured data; Gemini never writes to the warehouse."""
 from google import genai
 from google.genai import types
+from pydantic import ValidationError
 from shared.settings import MODEL, secret
 from receipt_extraction.schemas import Extraction
 PROMPT = """Read the food delivery receipt or order-history screenshot.
@@ -49,6 +50,15 @@ def extract_image(data: bytes) -> Extraction:
 
 def extraction_error_message(exc):
     """Explain common API errors without exposing keys, payloads or screenshots."""
+    stage = getattr(exc, "stage", None)
+    if stage == "image":
+        return "The image could not be processed. Use a valid single still image under 10 MB and at most 20 megapixels; try cropping or exporting it as PNG or JPEG. Gemini was not called."
+    if stage == "storage":
+        return "The receipt could not be uploaded to S3. Check the server's AWS credentials, bucket access and network connection. Gemini was not called."
+    if stage == "gemini" and exc.__cause__ is not None:
+        exc = exc.__cause__
+    if isinstance(exc, ValidationError):
+        return "Gemini returned receipt data that failed validation. Retry extraction; no confirmed orders were saved."
     code = getattr(exc, "code", None)
     message = str(getattr(exc, "message", "")).lower()
     if "credentials are not configured" in str(exc).lower():
@@ -64,9 +74,13 @@ def extraction_error_message(exc):
     if code == 403:
         return "Gemini denied access. Check the API key's project, API restrictions and model permissions."
     if code == 404:
-        return "The configured Gemini model is unavailable. Check GEMINI_MODEL in .env; the current app default is gemini-3.8-flash. Restart Streamlit after changing settings."
+        return "The configured Gemini model is unavailable. Check GEMINI_MODEL in the deployment settings. Restart Streamlit after changing settings."
     if code == 429:
         return "Gemini quota or rate limit reached. Check the key's quota and billing, then retry later."
     if code == 400:
         return "Gemini rejected the request. Check the API key and model/request configuration."
-    return "Receipt reading failed temporarily. Please try again or upload a clearer screenshot."
+    if isinstance(code, int) and 500 <= code < 600:
+        return "Gemini is temporarily unavailable. Retry extraction shortly."
+    if stage == "gemini":
+        return "The Gemini extraction step failed. Retry extraction and check the server's receipt diagnostic reference if it continues."
+    return "Receipt preparation failed unexpectedly. Check the server's receipt diagnostic reference."

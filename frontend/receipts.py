@@ -65,8 +65,15 @@ def render():
                     with st.spinner("Reading "+upload.name+"..."):
                         st.session_state.receipt_drafts[key]=prepare(upload.getvalue(),st.session_state.session_id)
                 except Exception as exc:
-                    logger.exception("Receipt preparation failed for uploaded file %s", upload.name)
-                    _show_extraction_status(upload.name, extraction_error_message(exc))
+                    reference = uuid.uuid4().hex[:12]
+                    cause = exc.__cause__ or exc
+                    code = getattr(cause, "code", None)
+                    logger.error(
+                        "Receipt failure reference=%s stage=%s error_type=%s status=%s",
+                        reference, getattr(exc, "stage", "unknown"),
+                        type(cause).__name__, code if isinstance(code, int) else "unknown",
+                    )
+                    _show_extraction_status(upload.name, extraction_error_message(exc) + f" Reference: {reference}.")
         for key,upload in selected.items():
             if key not in st.session_state.receipt_drafts: continue
             identifier,uri,extraction=st.session_state.receipt_drafts[key]
